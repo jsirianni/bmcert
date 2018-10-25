@@ -6,8 +6,6 @@ import (
 	"encoding/json"
 
 	"github.com/spf13/cobra"
-	//"github.com/hashicorp/vault/api"
-	//"github.com/hashicorp/vault/helper/certutil"
 )
 
 
@@ -16,16 +14,14 @@ type Certificate struct {
 }
 
 
-var newcert   Certificate  // Certificate struct
-var hostname  string
-var outputdir string
+var newcert      Certificate  // Certificate struct
+var hostname     string
+var outputdir    string
 var outputformat string
+
 
 // NOTE : forces bluemedora.localnet, for now
 const fixedDomain string = "bluemedora.localnet"
-
-
-
 
 
 // createCmd represents the create command
@@ -45,7 +41,6 @@ func init() {
 	createCmd.Flags().StringVarP(&hostname, "hostname", "H", "", "The short hostname or FQDN")
 	createCmd.Flags().StringVarP(&outputdir, "output-dir", "", "", "The directory to output to")
 	createCmd.Flags().StringVarP(&outputformat, "output-format", "", "pem", "The keyfile formant to output. [pem, p12]")
-
 
 	// require
 	createCmd.MarkFlagRequired("hostname")
@@ -71,16 +66,22 @@ func createCertificate() {
 }
 
 
-// Sets the fqdn if hostname argument appears to be valid
-// Returns true if successful, else false
+/*
+  Sets the fqdn if hostname argument appears to be valid
+   --hostname vault                       // valid
+   --hostname vault.bluemedora.localnet   // valid
+   --hostname vault.blue                  // !valid
+
+  Returns true if successful, else false
+*/
 func parseHostname() bool {
 	// split hostname argument
 	stringSlice := strings.Split(hostname, ".")
 
-
+	// if hostname is of length zero, return early
 	if len(hostname) == 0 {
-		fmt.Println("bruh")
-
+		fmt.Println("'--hostname' appears to be empty")
+		return false
 	}
 
 	// if hostname appears to be fqdn
@@ -107,8 +108,4 @@ func parseHostname() bool {
 		fmt.Println("Hostname appears to be neither a short hostname nor a FQDN")
 		return false
 	}
-
-	// TODO: Figure out why if / else if / else was not good enough
-	fmt.Println("This should never happen, but the compiler made me put a return here..")
-	return false
 }
