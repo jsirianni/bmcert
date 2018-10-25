@@ -38,12 +38,12 @@ func init() {
 	cobra.OnInitialize(initConfig)
 
 	// if no config is passed, initConfig() will set it
-	rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "c", "", "config file (default is $HOME/.bmcert.yaml)")
+	rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "", "", "config file (default is $HOME/.bmcert.yaml)")
 
 	// global arguments
-	rootCmd.PersistentFlags().StringVarP(&domain, "domain", "d", "bluemedora.localnet", "The domain name of the host, used if FQDN not present")
-	rootCmd.PersistentFlags().StringVarP(&vaulthost, "vault-host", "v", "vault.bluemedora.localnet", "The vault server" )
-	rootCmd.PersistentFlags().StringVarP(&vaultport, "vault-port", "p", "8200", "The vault http port")
+	rootCmd.PersistentFlags().StringVarP(&domain, "domain", "", "bluemedora.localnet", "The domain name of the host, used if FQDN not present")
+	rootCmd.PersistentFlags().StringVarP(&vaulthost, "vault-host", "", "vault.bluemedora.localnet", "The vault server" )
+	rootCmd.PersistentFlags().StringVarP(&vaultport, "vault-port", "", "8200", "The vault http port")
 	rootCmd.PersistentFlags().BoolVarP(&tls, "tls", "", true, "Enable or disable TLS encryption \"--tls=true\"")
 }
 

@@ -39,8 +39,8 @@ func init() {
 
 	// set flags
 	createCmd.Flags().StringVarP(&hostname, "hostname", "H", "", "The short hostname or FQDN")
-	createCmd.Flags().StringVarP(&outputdir, "output-dir", "", "", "The directory to output to")
-	createCmd.Flags().StringVarP(&outputformat, "output-format", "", "pem", "The keyfile formant to output. [pem, p12]")
+	createCmd.Flags().StringVarP(&outputdir, "output-dir", "O", "", "The directory to output to")
+	createCmd.Flags().StringVarP(&outputformat, "format", "F", "pem", "The keyfile formant to output. [pem, p12]")
 
 	// require
 	createCmd.MarkFlagRequired("hostname")
@@ -61,7 +61,6 @@ func createCertificate() {
 	}
 
 	fmt.Println(string(payload))
-
 	fmt.Println(tls)
 }
 
