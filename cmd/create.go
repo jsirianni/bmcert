@@ -16,8 +16,10 @@ type Certificate struct {
 }
 
 
-var newcert Certificate  // Certificate struct
-var hostname string
+var newcert   Certificate  // Certificate struct
+var hostname  string
+var outputdir string
+var outputformat string
 
 // NOTE : forces bluemedora.localnet, for now
 const fixedDomain string = "bluemedora.localnet"
@@ -38,7 +40,14 @@ var createCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(createCmd)
+
+	// set flags
 	createCmd.Flags().StringVarP(&hostname, "hostname", "H", "", "The short hostname or FQDN")
+	createCmd.Flags().StringVarP(&outputdir, "output-dir", "", "", "The directory to output to")
+	createCmd.Flags().StringVarP(&outputformat, "output-format", "", "pem", "The keyfile formant to output. [pem, p12]")
+
+
+	// require
 	createCmd.MarkFlagRequired("hostname")
 }
 
