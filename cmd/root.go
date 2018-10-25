@@ -9,7 +9,11 @@ import (
 )
 
 
-var cfgFile string
+var cfgFile   string
+var domain    string
+var vaulthost string
+var vaultport string
+var tls       bool
 
 
 // rootCmd represents the base command when called without any subcommands
@@ -33,14 +37,14 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 
-	// Here you will define your flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here,
-	// will be global for your application.
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.bmcert.yaml)")
+	// if no config is passed, initConfig() will set it
+	rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "c", "", "config file (default is $HOME/.bmcert.yaml)")
 
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
-	/*rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")*/
+	// global arguments
+	rootCmd.PersistentFlags().StringVarP(&domain, "domain", "d", "bluemedora.localnet", "The domain name of the host, used if FQDN not present")
+	rootCmd.PersistentFlags().StringVarP(&vaulthost, "vault-host", "v", "vault.bluemedora.localnet", "The vault server" )
+	rootCmd.PersistentFlags().StringVarP(&vaultport, "vault-port", "p", "8200", "The vault http port")
+	rootCmd.PersistentFlags().BoolVarP(&tls, "tls", "", true, "Enable or disable TLS encryption \"--tls=true\"")
 }
 
 

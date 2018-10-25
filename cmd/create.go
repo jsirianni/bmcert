@@ -1,11 +1,13 @@
 package cmd
 import (
+	"os"
 	"fmt"
 	"strings"
+	"encoding/json"
 
 	"github.com/spf13/cobra"
-	"github.com/hashicorp/vault/api"
-	"github.com/hashicorp/vault/helper/certutil"
+	//"github.com/hashicorp/vault/api"
+	//"github.com/hashicorp/vault/helper/certutil"
 )
 
 
@@ -16,8 +18,8 @@ type Certificate struct {
 
 var newcert Certificate  // Certificate struct
 var hostname string
-var domain   string
 
+// NOTE : forces bluemedora.localnet, for now
 const fixedDomain string = "bluemedora.localnet"
 
 
@@ -36,26 +38,27 @@ var createCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(createCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	createCmd.PersistentFlags().StringVar(&hostname, "hostname", "", "The short hostname or FQDN")
-	createCmd.PersistentFlags().StringVar(&domain, "domain", "bluemedora.localnet", "The domain name of the host, used if FQDN not present")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// createCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	createCmd.Flags().StringVarP(&hostname, "hostname", "H", "", "The short hostname or FQDN")
+	createCmd.MarkFlagRequired("hostname")
 }
 
 
 func createCertificate() {
-	if parseHostname() == true {
-		fmt.Println("Using hostname:", newcert.Common_name)
+	if parseHostname() != true {
+		fmt.Println("Failed to parse hostname: \"" + hostname + "\"" )
+		os.Exit(1)
+	}
+	fmt.Println("Using hostname:", newcert.Common_name)
+
+	payload, err := json.Marshal(newcert)
+	if err != nil {
+		fmt.Println(err.Error())
+		os.Exit(1)
 	}
 
-	return
+	fmt.Println(string(payload))
+
+	fmt.Println(tls)
 }
 
 
@@ -65,9 +68,14 @@ func parseHostname() bool {
 	// split hostname argument
 	stringSlice := strings.Split(hostname, ".")
 
+
+	if len(hostname) == 0 {
+		fmt.Println("bruh")
+
+	}
+
 	// if hostname appears to be fqdn
 	if len(stringSlice) == 3 {
-
 		// compare domain to fixed domain constant
 		d := stringSlice[1] + "." + stringSlice[2]
 		if d == fixedDomain {
