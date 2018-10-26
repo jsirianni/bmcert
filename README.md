@@ -2,7 +2,7 @@
 CLI for generating signed certificates using Vault.
 
 ## Overview
-bmcert uses the `cobra` project for parsing command line options. https://github.com/spf13/viper
+bmcert uses the `cobra` project for parsing command line options. https://github.com/spf13/cobra
 ```
 bmcert --help
 ```
