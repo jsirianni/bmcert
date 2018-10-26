@@ -9,13 +9,6 @@ import (
 )
 
 
-var cfgFile   string
-var domain    string
-var vaulthost string
-var vaultport string
-var tls       bool
-
-
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "bmcert",
@@ -44,7 +37,9 @@ func init() {
 	rootCmd.PersistentFlags().StringVarP(&domain, "domain", "", "bluemedora.localnet", "The domain name of the host, used if FQDN not present")
 	rootCmd.PersistentFlags().StringVarP(&vaulthost, "vault-host", "", "vault.bluemedora.localnet", "The vault server" )
 	rootCmd.PersistentFlags().StringVarP(&vaultport, "vault-port", "", "8200", "The vault http port")
-	rootCmd.PersistentFlags().BoolVarP(&tls, "tls", "", true, "Enable or disable TLS encryption \"--tls=true\"")
+	rootCmd.PersistentFlags().StringVarP(&pkipath, "pkipath", "", "/v1/bm-pki-int/issue/bluemedora-dot-localnet", "The vault certificate authority mount point")
+	rootCmd.PersistentFlags().BoolVarP(&tlsenable, "tls", "", true, "Enable or disable TLS encryption \"--tls=true\"")
+	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "", false, "Enable verbose output --verbose")
 }
 
 
@@ -71,5 +66,14 @@ func initConfig() {
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
+	}
+}
+
+
+func GetVaultUrl() string {
+	if tlsenable == true {
+		return "https://" + vaulthost + ":" + vaultport
+	} else {
+		return "http://" + vaulthost + ":" + vaultport
 	}
 }
