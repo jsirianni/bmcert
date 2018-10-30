@@ -86,9 +86,8 @@ func createCertificate() {
 	}
 
 	var apiresponse ApiResponse = requestCertificate()
-	var newcert SignedCertificate = apiresponse.Data
 	if validateCertificate(apiresponse) == true {
-		writeCert(newcert)
+		writeCert(apiresponse.Data)
 	} else {
 		fmt.Println("Exiting due to certificate validaton failure. . .")
 	}
