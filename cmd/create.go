@@ -72,7 +72,7 @@ func init() {
 	createCmd.Flags().StringVarP(&outputformat, "format", "F", "pem", "The keyfile formant to output. [pem, p12]")
 	createCmd.Flags().StringVarP(&altnames, "alt-names", "", "", "The requested Subject Alternative Names, in a comma-delimited list")
 	createCmd.Flags().StringVarP(&ipsans, "ip-sans", "", "", "The requested IP Subject Alternative Names, in a comma-delimited list")
-	createCmd.Flags().StringVarP(&urisans, "uri-sans", "", "", "The requested URI Subject Alternative Names, in a comma-delimited list")
+	createCmd.Flags().StringVarP(&urisans, "uri-sans", "", "", "The requested URI Subject Alternative Names, in a comma-delimited list. (ALTHA: Not tested)")
 
 	// require
 	createCmd.MarkFlagRequired("hostname")
