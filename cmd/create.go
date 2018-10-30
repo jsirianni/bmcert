@@ -49,10 +49,6 @@ var ipsans       string
 var urisans      string
 
 
-// NOTE : forces bluemedora.localnet, for now
-const fixedDomain string = "bluemedora.localnet"
-
-
 // createCmd represents the create command
 var createCmd = &cobra.Command{
 	Use:   "create",
@@ -67,7 +63,7 @@ func init() {
 	rootCmd.AddCommand(createCmd)
 
 	// set flags
-	createCmd.Flags().StringVarP(&hostname, "hostname", "H", "", "The short hostname or FQDN.")
+	createCmd.Flags().StringVarP(&hostname, "hostname", "H", "", "The fully qualified hostname.")
 	createCmd.Flags().StringVarP(&outputdir, "output-dir", "O", "", "The directory to output to. Defaults to working directory.")
 	createCmd.Flags().StringVarP(&outputformat, "format", "F", "pem", "The keyfile formant to output. [pem, p12]")
 	createCmd.Flags().StringVarP(&altnames, "alt-names", "", "", "The requested Subject Alternative Names, in a comma-delimited list")
@@ -195,22 +191,12 @@ func setHostname() bool {
 
 	// if hostname appears to be fqdn
 	if len(stringSlice) == 3 {
-		// compare domain to fixed domain constant
-		d := stringSlice[1] + "." + stringSlice[2]
-		if d == fixedDomain {
-			request.Common_name = hostname
-			return true
-
-		// return false if the domain appears to not be bluemedora.localnet
-		} else {
-			fmt.Println("Domain appears to be malformed, or not equal to", fixedDomain)
-			return false
-		}
+		return true
 
 	// if hostname appears to be short
 	} else if len(stringSlice) == 1 {
-		request.Common_name = hostname + "." + fixedDomain
-		return true
+		fmt.Println("Hostname appears to be a short hostname. FQDN is required for --hostname")
+		return false
 
 	// return false if hostname appears to be invalid
 	} else {
