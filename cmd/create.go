@@ -13,14 +13,14 @@ import (
 )
 
 
-type CertificateReq struct {
+type Request struct {
 	Common_name string `json:"common_name"`
 	Alt_names   string `json:"alt_names"`
 	Ip_sans     string `json:"ip_sans"`
 	Uri_sans    string `json:"uri_sans"`
 }
 
-type CertificateResp struct {
+type ApiResponse struct {
 	Request_id string      `json:request_id`
 	Lease_id   string      `json:lease_id`    // usually null
 	Renewable  bool        `json:renewable`
@@ -40,7 +40,7 @@ type SignedCertificate struct {
 }
 
 
-var newcert      CertificateReq  // Certificate struct
+var request      Request  // Certificate struct
 var hostname     string
 var outputdir    string
 var outputformat string
@@ -85,9 +85,9 @@ func createCertificate() {
 		os.Exit(1)
 	}
 
-	var certresp CertificateResp = requestCertificate()
-	var newcert SignedCertificate = certresp.Data
-	if validateCertificate(certresp) == true {
+	var apiresponse ApiResponse = requestCertificate()
+	var newcert SignedCertificate = apiresponse.Data
+	if validateCertificate(apiresponse) == true {
 		writeCert(newcert)
 	} else {
 		fmt.Println("Exiting due to certificate validaton failure. . .")
@@ -95,14 +95,14 @@ func createCertificate() {
 }
 
 
-func requestCertificate() CertificateResp {
+func requestCertificate() ApiResponse {
 	// NOTE: disable TLS verification for now
 	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 
 	var url string = GetVaultUrl() + pkipath
 
 	// create the json payload
-	payload, err := json.Marshal(newcert)
+	payload, err := json.Marshal(request)
 	if err != nil {
 		fmt.Println(err.Error())
 		os.Exit(1)
@@ -141,13 +141,13 @@ func requestCertificate() CertificateResp {
 
 
 	// return the certificate response
-	var certresp CertificateResp
-	err = json.Unmarshal(body, &certresp)
+	var r ApiResponse
+	err = json.Unmarshal(body, &r)
 	if err != nil {
 		fmt.Println(err.Error())
 		os.Exit(1)
 	}
-	return certresp
+	return r
 }
 
 
@@ -199,7 +199,7 @@ func setHostname() bool {
 		// compare domain to fixed domain constant
 		d := stringSlice[1] + "." + stringSlice[2]
 		if d == fixedDomain {
-			newcert.Common_name = hostname
+			request.Common_name = hostname
 			return true
 
 		// return false if the domain appears to not be bluemedora.localnet
@@ -210,7 +210,7 @@ func setHostname() bool {
 
 	// if hostname appears to be short
 	} else if len(stringSlice) == 1 {
-		newcert.Common_name = hostname + "." + fixedDomain
+		request.Common_name = hostname + "." + fixedDomain
 		return true
 
 	// return false if hostname appears to be invalid
@@ -224,7 +224,7 @@ func setHostname() bool {
 // set newcert.alt_names if it is valid
 func setAltNameS() bool {
 	if len(altnames) > 0 {
-		newcert.Alt_names = altnames
+		request.Alt_names = altnames
 		return true
 	} else {
 		return false
@@ -235,7 +235,7 @@ func setAltNameS() bool {
 // set newcert.ip_sans if it is valid
 func setIpSans() bool {
 	if len(ipsans) > 0 {
-		newcert.Ip_sans = ipsans
+		request.Ip_sans = ipsans
 		return true
 	} else {
 		return false
@@ -246,7 +246,7 @@ func setIpSans() bool {
 // set newcert.uri_sans if it is valid
 func setUriSans() bool {
 	if len(urisans) > 0 {
-		newcert.Uri_sans = urisans
+		request.Uri_sans = urisans
 		return true
 	} else {
 		return false
@@ -255,7 +255,7 @@ func setUriSans() bool {
 
 
 // perform basic checks on the certificate before assuming it is valid
-func validateCertificate(certresp CertificateResp) bool {
+func validateCertificate(certresp ApiResponse) bool {
 	var valid bool = true
 
 	if verbose == true {
