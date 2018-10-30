@@ -77,7 +77,6 @@ func init() {
 
 func createCertificate() {
 	if parseArgs() != true {
-		fmt.Println("Failed to parse arguments, exiting.")
 		os.Exit(1)
 	}
 
@@ -164,7 +163,6 @@ func writeCert(cert SignedCertificate) {
 // Returns true if successful, else false
 func parseArgs() bool {
 	if setHostname() != true {
-		println("Failed to parse hostname: " + hostname)
 		return false
 	}
 
