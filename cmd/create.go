@@ -189,6 +189,7 @@ func setHostname() bool {
 
 	// if hostname appears to be fqdn
 	if len(stringSlice) == 3 {
+		request.Common_name = hostname
 		return true
 
 	// if hostname appears to be short
