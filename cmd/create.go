@@ -147,12 +147,35 @@ func requestCertificate() ApiResponse {
 
 // Write the certificate to disk
 func writeCert(cert SignedCertificate) {
-	pem := []byte(cert.Certificate + "\n" + cert.Private_key + "\n" + cert.Issuing_ca)
-	file := getDir() + hostname + ".pem"
-	err := ioutil.WriteFile(file, pem, 0400)
-	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
+
+	// write a single pem encoded certificate chain
+	if outputformat == "pem" {
+		pem := []byte(cert.Certificate + "\n" + cert.Private_key + "\n" + cert.Issuing_ca)
+		pem_file := getDir() + hostname + ".pem"
+		err := ioutil.WriteFile(pem_file, pem, 0400)
+		if err != nil {
+			fmt.Println(err.Error())
+			os.Exit(1)
+		}
+
+	// write the certificate and private key to seperate files,
+	// both pem encoded
+	} else if outputformat == "cert" {
+		crt := []byte(cert.Certificate + "\n" + cert.Issuing_ca)
+		crt_file := getDir() + hostname + ".crt"
+		err := ioutil.WriteFile(crt_file, crt, 0400)
+		if err != nil {
+			fmt.Println(err.Error())
+			os.Exit(1)
+		} else {
+			key := []byte(cert.Private_key)
+			key_file := getDir() + hostname + ".key"
+			err := ioutil.WriteFile(key_file, key, 0400)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(1)
+			}
+		}
 	}
 	return
 }
