@@ -3,13 +3,18 @@ import (
 	"os"
 	"fmt"
 	"strings"
+	"strconv"
 	"encoding/json"
 	"net/http"
 	"bytes"
 	"io/ioutil"
 	"crypto/tls"
+	"crypto/x509"
+	"math/rand"
 
 	"github.com/spf13/cobra"
+	pkcs12 "software.sslmate.com/src/go-pkcs12"
+	"github.com/hashicorp/vault/helper/certutil"
 )
 
 
@@ -175,6 +180,37 @@ func writeCert(cert SignedCertificate) {
 				fmt.Println(err.Error())
 				os.Exit(1)
 			}
+		}
+
+	} else if outputformat == "pkcs12" || outputformat == "p12" {
+
+		pem, err := certutil.ParsePEMBundle(cert.Certificate + "\n" + cert.Private_key + "\n" + cert.Issuing_ca)
+		if err != nil {
+			fmt.Println("Certutil failed to build PEM")
+			os.Exit(1)
+		}
+
+		// NOTE: This will only use the first certificate in the chain,
+		// which will likely cause issues if we use an intermediate certificate
+		// during the signing. pkcs12 supports up to 10 certificates in the chain
+		ca, err := x509.ParseCertificates(pem.CAChain[0].Bytes)
+		if err != nil {
+			fmt.Println("Failed to parse Certificate authority")
+		}
+
+		rand := strings.NewReader(strconv.Itoa(rand.Int()))
+
+		p12, err := pkcs12.Encode(rand, pem.PrivateKey, pem.Certificate, ca, "medora")
+		if err != nil {
+			fmt.Println(err.Error())
+			os.Exit(1)
+		}
+
+		p12_file := getDir() + hostname + ".p12"
+		err = ioutil.WriteFile(p12_file, p12, 0400)
+		if err != nil {
+			fmt.Println(err.Error())
+			os.Exit(1)
 		}
 	}
 	return
