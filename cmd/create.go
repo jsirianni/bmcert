@@ -148,7 +148,7 @@ func requestCertificate() ApiResponse {
 // Write the certificate to disk
 func writeCert(cert SignedCertificate) {
 	pem := []byte(cert.Certificate + "\n" + cert.Private_key + "\n" + cert.Issuing_ca)
-	file := getDir() + hostname + ".crt"
+	file := getDir() + hostname + ".pem"
 	err := ioutil.WriteFile(file, pem, 0400)
 	if err != nil {
 		fmt.Println(err.Error())
