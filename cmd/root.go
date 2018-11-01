@@ -27,8 +27,6 @@ func Execute() {
 
 func init() {
 	// global arguments
-	rootCmd.PersistentFlags().StringVarP(&vaulthost, "vault-host", "", "vault.bluemedora.localnet", "The vault server" )
-	rootCmd.PersistentFlags().StringVarP(&vaultport, "vault-port", "", "8200", "The vault http port")
 	rootCmd.PersistentFlags().BoolVarP(&tlsenable, "tls", "", true, "Enable or disable TLS encryption \"--tls=true\" (Defaults to true)")
 	rootCmd.PersistentFlags().BoolVarP(&skipverify, "tls-skip-verify", "", false, "Disable certificate verifiction when communicating with the Vault API (Defaults to false)")
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "", false, "Enable verbose output --verbose")
