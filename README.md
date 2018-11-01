@@ -3,14 +3,14 @@ CLI for generating signed certificates using Vault.
 
 
 ## Overview
-bmcert uses the `cobra` project for parsing command line options. https://github.com/spf13/cobra
+`bmcert` uses the `cobra` project for parsing command line options. https://github.com/spf13/cobra
 ```
 bmcert --help
 ```
 
 
 ## Installation
-bmcert should be placed somewhere in your systems `path` and made executable. bmcert relies
+`bmcert` should be placed somewhere in your systems `path` and made executable. `bmcert` relies
 on an environment variable `VAULT_TOKEN`, which must have permission to create certificates.
 
 
