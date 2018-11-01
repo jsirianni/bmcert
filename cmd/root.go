@@ -29,7 +29,6 @@ func init() {
 	// global arguments
 	rootCmd.PersistentFlags().StringVarP(&vaulthost, "vault-host", "", "vault.bluemedora.localnet", "The vault server" )
 	rootCmd.PersistentFlags().StringVarP(&vaultport, "vault-port", "", "8200", "The vault http port")
-	rootCmd.PersistentFlags().StringVarP(&pkipath, "pkipath", "", "/v1/bm-pki-int/issue/bluemedora-dot-localnet", "The vault certificate authority mount point")
 	rootCmd.PersistentFlags().BoolVarP(&tlsenable, "tls", "", true, "Enable or disable TLS encryption \"--tls=true\" (Defaults to true)")
 	rootCmd.PersistentFlags().BoolVarP(&skipverify, "tls-skip-verify", "", false, "Disable certificate verifiction when communicating with the Vault API (Defaults to false)")
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "", false, "Enable verbose output --verbose")
@@ -37,10 +36,25 @@ func init() {
 
 
 
+// returns the full URL for the VAULT PKI endpoint
+// example: https://vault.localnet:8200/v1/pki/issue/myrole
 func GetVaultUrl() string {
-	if tlsenable == true {
-		return "https://" + vaulthost + ":" + vaultport
-	} else {
-		return "http://" + vaulthost + ":" + vaultport
+	url := os.Getenv("VAULT_CERT_URL")
+	if len(url) == 0 {
+		fmt.Println("Could not read environment VAULT_CERT_URL")
+		os.Exit(1)
 	}
+	return url
+}
+
+
+
+// returns the vault token
+func GetVaultToken() string {
+	token := os.Getenv("VAULT_TOKEN")
+	if len(token) == 0 {
+		fmt.Println("Could not read environment VAULT_TOKEN")
+		os.Exit(1)
+	}
+	return token
 }
