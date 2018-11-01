@@ -13,14 +13,14 @@ import (
 )
 
 
-type CertificateReq struct {
+type Request struct {
 	Common_name string `json:"common_name"`
 	Alt_names   string `json:"alt_names"`
 	Ip_sans     string `json:"ip_sans"`
 	Uri_sans    string `json:"uri_sans"`
 }
 
-type CertificateResp struct {
+type ApiResponse struct {
 	Request_id string      `json:request_id`
 	Lease_id   string      `json:lease_id`    // usually null
 	Renewable  bool        `json:renewable`
@@ -40,17 +40,13 @@ type SignedCertificate struct {
 }
 
 
-var newcert      CertificateReq  // Certificate struct
+var request      Request  // Certificate struct
 var hostname     string
 var outputdir    string
 var outputformat string
 var altnames     string
 var ipsans       string
 var urisans      string
-
-
-// NOTE : forces bluemedora.localnet, for now
-const fixedDomain string = "bluemedora.localnet"
 
 
 // createCmd represents the create command
@@ -67,7 +63,7 @@ func init() {
 	rootCmd.AddCommand(createCmd)
 
 	// set flags
-	createCmd.Flags().StringVarP(&hostname, "hostname", "H", "", "The short hostname or FQDN.")
+	createCmd.Flags().StringVarP(&hostname, "hostname", "H", "", "The fully qualified hostname.")
 	createCmd.Flags().StringVarP(&outputdir, "output-dir", "O", "", "The directory to output to. Defaults to working directory.")
 	createCmd.Flags().StringVarP(&outputformat, "format", "F", "pem", "The keyfile formant to output. [pem, p12]")
 	createCmd.Flags().StringVarP(&altnames, "alt-names", "", "", "The requested Subject Alternative Names, in a comma-delimited list")
@@ -81,28 +77,26 @@ func init() {
 
 func createCertificate() {
 	if parseArgs() != true {
-		fmt.Println("Failed to parse arguments, exiting.")
 		os.Exit(1)
 	}
 
-	var certresp CertificateResp = requestCertificate()
-	var newcert SignedCertificate = certresp.Data
-	if validateCertificate(certresp) == true {
-		writeCert(newcert)
+	var apiresponse ApiResponse = requestCertificate()
+	if validateCertificate(apiresponse) == true {
+		writeCert(apiresponse.Data)
 	} else {
 		fmt.Println("Exiting due to certificate validaton failure. . .")
 	}
 }
 
 
-func requestCertificate() CertificateResp {
+func requestCertificate() ApiResponse {
 	// NOTE: disable TLS verification for now
 	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 
 	var url string = GetVaultUrl() + pkipath
 
 	// create the json payload
-	payload, err := json.Marshal(newcert)
+	payload, err := json.Marshal(request)
 	if err != nil {
 		fmt.Println(err.Error())
 		os.Exit(1)
@@ -141,20 +135,20 @@ func requestCertificate() CertificateResp {
 
 
 	// return the certificate response
-	var certresp CertificateResp
-	err = json.Unmarshal(body, &certresp)
+	var r ApiResponse
+	err = json.Unmarshal(body, &r)
 	if err != nil {
 		fmt.Println(err.Error())
 		os.Exit(1)
 	}
-	return certresp
+	return r
 }
 
 
 // Write the certificate to disk
 func writeCert(cert SignedCertificate) {
 	pem := []byte(cert.Certificate + "\n" + cert.Private_key + "\n" + cert.Issuing_ca)
-	file := getDir() + hostname + ".crt"
+	file := getDir() + hostname + ".pem"
 	err := ioutil.WriteFile(file, pem, 0400)
 	if err != nil {
 		fmt.Println(err.Error())
@@ -169,7 +163,6 @@ func writeCert(cert SignedCertificate) {
 // Returns true if successful, else false
 func parseArgs() bool {
 	if setHostname() != true {
-		println("Failed to parse hostname: " + hostname)
 		return false
 	}
 
@@ -196,22 +189,13 @@ func setHostname() bool {
 
 	// if hostname appears to be fqdn
 	if len(stringSlice) == 3 {
-		// compare domain to fixed domain constant
-		d := stringSlice[1] + "." + stringSlice[2]
-		if d == fixedDomain {
-			newcert.Common_name = hostname
-			return true
-
-		// return false if the domain appears to not be bluemedora.localnet
-		} else {
-			fmt.Println("Domain appears to be malformed, or not equal to", fixedDomain)
-			return false
-		}
+		request.Common_name = hostname
+		return true
 
 	// if hostname appears to be short
 	} else if len(stringSlice) == 1 {
-		newcert.Common_name = hostname + "." + fixedDomain
-		return true
+		fmt.Println("Hostname appears to be a short hostname. FQDN is required for --hostname")
+		return false
 
 	// return false if hostname appears to be invalid
 	} else {
@@ -224,7 +208,7 @@ func setHostname() bool {
 // set newcert.alt_names if it is valid
 func setAltNameS() bool {
 	if len(altnames) > 0 {
-		newcert.Alt_names = altnames
+		request.Alt_names = altnames
 		return true
 	} else {
 		return false
@@ -235,7 +219,7 @@ func setAltNameS() bool {
 // set newcert.ip_sans if it is valid
 func setIpSans() bool {
 	if len(ipsans) > 0 {
-		newcert.Ip_sans = ipsans
+		request.Ip_sans = ipsans
 		return true
 	} else {
 		return false
@@ -246,7 +230,7 @@ func setIpSans() bool {
 // set newcert.uri_sans if it is valid
 func setUriSans() bool {
 	if len(urisans) > 0 {
-		newcert.Uri_sans = urisans
+		request.Uri_sans = urisans
 		return true
 	} else {
 		return false
@@ -255,7 +239,7 @@ func setUriSans() bool {
 
 
 // perform basic checks on the certificate before assuming it is valid
-func validateCertificate(certresp CertificateResp) bool {
+func validateCertificate(certresp ApiResponse) bool {
 	var valid bool = true
 
 	if verbose == true {
