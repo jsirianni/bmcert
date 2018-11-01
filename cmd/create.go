@@ -13,7 +13,7 @@ import (
 	"math/rand"
 
 	"github.com/spf13/cobra"
-	pkcs12 "software.sslmate.com/src/go-pkcs12"
+	pkcs12 "github.com/BlueMedoraPublic/go-pkcs12"
 	"github.com/hashicorp/vault/helper/certutil"
 )
 
@@ -49,6 +49,7 @@ var request      Request  // Certificate struct
 var hostname     string
 var outputdir    string
 var outputformat string
+var password     string
 var altnames     string
 var ipsans       string
 var urisans      string
@@ -71,6 +72,7 @@ func init() {
 	createCmd.Flags().StringVarP(&hostname, "hostname", "H", "", "The fully qualified hostname.")
 	createCmd.Flags().StringVarP(&outputdir, "output-dir", "O", "", "The directory to output to. Defaults to working directory.")
 	createCmd.Flags().StringVarP(&outputformat, "format", "F", "pem", "The keyfile formant to output. [pem, p12]")
+	createCmd.Flags().StringVarP(&password, "password", "P", "", "The password to protect pkcs12 (p12) certificates (optional)")
 	createCmd.Flags().StringVarP(&altnames, "alt-names", "", "", "The requested Subject Alternative Names, in a comma-delimited list")
 	createCmd.Flags().StringVarP(&ipsans, "ip-sans", "", "", "The requested IP Subject Alternative Names, in a comma-delimited list")
 	createCmd.Flags().StringVarP(&urisans, "uri-sans", "", "", "The requested URI Subject Alternative Names, in a comma-delimited list. (ALTHA: Not tested)")
@@ -200,7 +202,7 @@ func writeCert(cert SignedCertificate) {
 
 		rand := strings.NewReader(strconv.Itoa(rand.Int()))
 
-		p12, err := pkcs12.Encode(rand, pem.PrivateKey, pem.Certificate, ca, "medora")
+		p12, err := pkcs12.Encode(rand, pem.PrivateKey, pem.Certificate, ca, password)
 		if err != nil {
 			fmt.Println(err.Error())
 			os.Exit(1)
@@ -215,7 +217,6 @@ func writeCert(cert SignedCertificate) {
 	}
 	return
 }
-
 
 
 // Parses passed arguments, and assigns them to "newcert CertificateReq"
