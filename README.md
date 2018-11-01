@@ -70,9 +70,10 @@ When calling `bmcert create`:
 
 
 ## Building from Source
+Ensure your `GOPATH` is set appropriately and then run:
 ```
-git@github.com:BlueMedora/bmcert.git
-cd bmcert
-go get
+go get github.com:BlueMedora/bmcert
+cd $GOPATH/src/github.com/BlueMedora/bmcert
+go get .
 go build
 ```
