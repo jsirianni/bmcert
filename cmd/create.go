@@ -83,7 +83,7 @@ func init() {
 
 
 func createCertificate() {
-	// Disable TLS verification globaly for this command 
+	// Disable TLS verification globaly for this command
 	if skipverify == true {
 		http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	}
@@ -102,7 +102,7 @@ func createCertificate() {
 
 
 func requestCertificate() ApiResponse {
-	var url string = GetVaultUrl() + pkipath
+	var url string = GetVaultUrl()
 
 	// create the json payload
 	payload, err := json.Marshal(request)
@@ -117,7 +117,7 @@ func requestCertificate() ApiResponse {
 		fmt.Println(err.Error())
 		os.Exit(1)
 	}
-	req.Header.Set("X-Vault-Token", os.Getenv("VAULT_TOKEN"))
+	req.Header.Set("X-Vault-Token", GetVaultToken())
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept", "application/json")
 

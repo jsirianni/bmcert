@@ -10,7 +10,6 @@ var cfgFile    string
 var domain     string
 var vaulthost  string
 var vaultport  string
-var pkipath    string
 var tlsenable  bool
 var skipverify bool
 var verbose    bool
