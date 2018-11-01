@@ -15,6 +15,9 @@ import (
 
 type CertificateReq struct {
 	Common_name string `json:"common_name"`
+	Alt_names   string `json:"alt_names"`
+	Ip_sans     string `json:"ip_sans"`
+	Uri_sans    string `json:"uri_sans"`
 }
 
 type CertificateResp struct {
@@ -41,6 +44,9 @@ var newcert      CertificateReq  // Certificate struct
 var hostname     string
 var outputdir    string
 var outputformat string
+var altnames     string
+var ipsans       string
+var urisans      string
 
 
 // NOTE : forces bluemedora.localnet, for now
@@ -64,6 +70,9 @@ func init() {
 	createCmd.Flags().StringVarP(&hostname, "hostname", "H", "", "The short hostname or FQDN.")
 	createCmd.Flags().StringVarP(&outputdir, "output-dir", "O", "", "The directory to output to. Defaults to working directory.")
 	createCmd.Flags().StringVarP(&outputformat, "format", "F", "pem", "The keyfile formant to output. [pem, p12]")
+	createCmd.Flags().StringVarP(&altnames, "alt-names", "", "", "The requested Subject Alternative Names, in a comma-delimited list")
+	createCmd.Flags().StringVarP(&ipsans, "ip-sans", "", "", "The requested IP Subject Alternative Names, in a comma-delimited list")
+	createCmd.Flags().StringVarP(&urisans, "uri-sans", "", "", "The requested URI Subject Alternative Names, in a comma-delimited list. (ALTHA: Not tested)")
 
 	// require
 	createCmd.MarkFlagRequired("hostname")
@@ -71,11 +80,10 @@ func init() {
 
 
 func createCertificate() {
-	if parseHostname() != true {
-		fmt.Println("Failed to parse hostname: \"" + hostname + "\"" )
+	if parseArgs() != true {
+		fmt.Println("Failed to parse arguments, exiting.")
 		os.Exit(1)
 	}
-
 
 	var certresp CertificateResp = requestCertificate()
 	var newcert SignedCertificate = certresp.Data
@@ -156,15 +164,27 @@ func writeCert(cert SignedCertificate) {
 }
 
 
-/*
-  Sets the fqdn if hostname argument appears to be valid
-   --hostname vault                       // valid
-   --hostname vault.bluemedora.localnet   // valid
-   --hostname vault.blue                  // !valid
 
-  Returns true if successful, else false
-*/
-func parseHostname() bool {
+// Parses passed arguments, and assigns them to "newcert CertificateReq"
+// Returns true if successful, else false
+func parseArgs() bool {
+	if setHostname() != true {
+		println("Failed to parse hostname: " + hostname)
+		return false
+	}
+
+	// set alt, ip and uri sans but ignore the return
+	// value, as they do not matter in this context
+	setAltNameS()
+	setIpSans()
+	setUriSans()
+
+	return true
+}
+
+
+// set newcert.hostname if it is valid
+func setHostname() bool {
 	// split hostname argument
 	stringSlice := strings.Split(hostname, ".")
 
@@ -196,6 +216,39 @@ func parseHostname() bool {
 	// return false if hostname appears to be invalid
 	} else {
 		fmt.Println("Hostname appears to be neither a short hostname nor a FQDN")
+		return false
+	}
+}
+
+
+// set newcert.alt_names if it is valid
+func setAltNameS() bool {
+	if len(altnames) > 0 {
+		newcert.Alt_names = altnames
+		return true
+	} else {
+		return false
+	}
+}
+
+
+// set newcert.ip_sans if it is valid
+func setIpSans() bool {
+	if len(ipsans) > 0 {
+		newcert.Ip_sans = ipsans
+		return true
+	} else {
+		return false
+	}
+}
+
+
+// set newcert.uri_sans if it is valid
+func setUriSans() bool {
+	if len(urisans) > 0 {
+		newcert.Uri_sans = urisans
+		return true
+	} else {
 		return false
 	}
 }
