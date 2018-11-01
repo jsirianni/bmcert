@@ -10,9 +10,13 @@ bmcert --help
 
 
 ## Installation
-`bmcert` should be placed somewhere in your systems `path` and made executable. `bmcert` relies
-on an environment variable `VAULT_TOKEN`, which must have permission to create certificates.
+`bmcert` should be placed somewhere in your systems `path` and made executable.
 
+`bmcert` relies on two environment variables
+```
+VAULT_TOKEN=<your vault token>
+VAULT_CERT_URL=<path to your vault pki endpoint>
+```
 
 ## Usage
 
