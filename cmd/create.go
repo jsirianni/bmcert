@@ -76,6 +76,11 @@ func init() {
 
 
 func createCertificate() {
+	// Disable TLS verification globaly for this command 
+	if skipverify == true {
+		http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+	}
+
 	if parseArgs() != true {
 		os.Exit(1)
 	}
@@ -90,9 +95,6 @@ func createCertificate() {
 
 
 func requestCertificate() ApiResponse {
-	// NOTE: disable TLS verification for now
-	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
-
 	var url string = GetVaultUrl() + pkipath
 
 	// create the json payload
