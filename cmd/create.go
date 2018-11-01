@@ -3,13 +3,18 @@ import (
 	"os"
 	"fmt"
 	"strings"
+	"strconv"
 	"encoding/json"
 	"net/http"
 	"bytes"
 	"io/ioutil"
 	"crypto/tls"
+	"crypto/x509"
+	"math/rand"
 
 	"github.com/spf13/cobra"
+	pkcs12 "github.com/BlueMedoraPublic/go-pkcs12"
+	"github.com/hashicorp/vault/helper/certutil"
 )
 
 
@@ -21,22 +26,22 @@ type Request struct {
 }
 
 type ApiResponse struct {
-	Request_id string      `json:request_id`
-	Lease_id   string      `json:lease_id`    // usually null
-	Renewable  bool        `json:renewable`
-	Lease_duration float32 `json:lease_duration`
-	Data SignedCertificate `json:data`
-	Wrap_info  string      `json:wrap_info`   // usually null
-	Warnings   string      `json:warnings`    // usually null
-	Auth       string      `json:auth`        // usually null
+	Request_id string      `json:"request_id"`
+	Lease_id   string      `json:"lease_id"`    // usually null
+	Renewable  bool        `json:"renewable"`
+	Lease_duration float32 `json:"lease_duration"`
+	Data SignedCertificate `json:"data"`
+	Wrap_info  string      `json:"wrap_info"`   // usually null
+	Warnings   string      `json:"warnings"`    // usually null
+	Auth       string      `json:"auth"`        // usually null
 }
 
 type SignedCertificate struct {
-	Certificate string      `json:certificate`
-	Issuing_ca string       `json:issuing_ca`
-	Private_key string 	    `json:private_key`
-	Private_key_type string `json:private_key_type`
-	Serial_number string    `json:serial_number`
+	Certificate string      `json:"certificate"`
+	Issuing_ca string       `json:"issuing_ca"`
+	Private_key string 	    `json:"private_key"`
+	Private_key_type string `json:"private_key_type"`
+	Serial_number string    `json:"serial_number"`
 }
 
 
@@ -44,6 +49,7 @@ var request      Request  // Certificate struct
 var hostname     string
 var outputdir    string
 var outputformat string
+var password     string
 var altnames     string
 var ipsans       string
 var urisans      string
@@ -66,6 +72,7 @@ func init() {
 	createCmd.Flags().StringVarP(&hostname, "hostname", "H", "", "The fully qualified hostname.")
 	createCmd.Flags().StringVarP(&outputdir, "output-dir", "O", "", "The directory to output to. Defaults to working directory.")
 	createCmd.Flags().StringVarP(&outputformat, "format", "F", "pem", "The keyfile formant to output. [pem, p12]")
+	createCmd.Flags().StringVarP(&password, "password", "P", "", "The password to protect pkcs12 (p12) certificates (optional)")
 	createCmd.Flags().StringVarP(&altnames, "alt-names", "", "", "The requested Subject Alternative Names, in a comma-delimited list")
 	createCmd.Flags().StringVarP(&ipsans, "ip-sans", "", "", "The requested IP Subject Alternative Names, in a comma-delimited list")
 	createCmd.Flags().StringVarP(&urisans, "uri-sans", "", "", "The requested URI Subject Alternative Names, in a comma-delimited list. (ALTHA: Not tested)")
@@ -76,6 +83,11 @@ func init() {
 
 
 func createCertificate() {
+	// Disable TLS verification globaly for this command 
+	if skipverify == true {
+		http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+	}
+
 	if parseArgs() != true {
 		os.Exit(1)
 	}
@@ -90,9 +102,6 @@ func createCertificate() {
 
 
 func requestCertificate() ApiResponse {
-	// NOTE: disable TLS verification for now
-	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
-
 	var url string = GetVaultUrl() + pkipath
 
 	// create the json payload
@@ -147,16 +156,69 @@ func requestCertificate() ApiResponse {
 
 // Write the certificate to disk
 func writeCert(cert SignedCertificate) {
-	pem := []byte(cert.Certificate + "\n" + cert.Private_key + "\n" + cert.Issuing_ca)
-	file := getDir() + hostname + ".pem"
-	err := ioutil.WriteFile(file, pem, 0400)
-	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
+
+	// write a single pem encoded certificate chain
+	if outputformat == "pem" {
+		pem := []byte(cert.Certificate + "\n" + cert.Private_key + "\n" + cert.Issuing_ca)
+		pem_file := getDir() + hostname + ".pem"
+		err := ioutil.WriteFile(pem_file, pem, 0400)
+		if err != nil {
+			fmt.Println(err.Error())
+			os.Exit(1)
+		}
+
+	// write the certificate and private key to seperate files,
+	// both pem encoded
+	} else if outputformat == "cert" {
+		crt := []byte(cert.Certificate + "\n" + cert.Issuing_ca)
+		crt_file := getDir() + hostname + ".crt"
+		err := ioutil.WriteFile(crt_file, crt, 0400)
+		if err != nil {
+			fmt.Println(err.Error())
+			os.Exit(1)
+		} else {
+			key := []byte(cert.Private_key)
+			key_file := getDir() + hostname + ".key"
+			err := ioutil.WriteFile(key_file, key, 0400)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(1)
+			}
+		}
+
+	} else if outputformat == "pkcs12" || outputformat == "p12" {
+
+		pem, err := certutil.ParsePEMBundle(cert.Certificate + "\n" + cert.Private_key + "\n" + cert.Issuing_ca)
+		if err != nil {
+			fmt.Println("Certutil failed to build PEM")
+			os.Exit(1)
+		}
+
+		// NOTE: This will only use the first certificate in the chain,
+		// which will likely cause issues if we use an intermediate certificate
+		// during the signing. pkcs12 supports up to 10 certificates in the chain
+		ca, err := x509.ParseCertificates(pem.CAChain[0].Bytes)
+		if err != nil {
+			fmt.Println("Failed to parse Certificate authority")
+		}
+
+		rand := strings.NewReader(strconv.Itoa(rand.Int()))
+
+		p12, err := pkcs12.Encode(rand, pem.PrivateKey, pem.Certificate, ca, password)
+		if err != nil {
+			fmt.Println(err.Error())
+			os.Exit(1)
+		}
+
+		p12_file := getDir() + hostname + ".p12"
+		err = ioutil.WriteFile(p12_file, p12, 0400)
+		if err != nil {
+			fmt.Println(err.Error())
+			os.Exit(1)
+		}
 	}
 	return
 }
-
 
 
 // Parses passed arguments, and assigns them to "newcert CertificateReq"
