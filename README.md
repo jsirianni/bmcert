@@ -47,11 +47,8 @@ bmcert create --hostname bob.bluemedora.localnet --format p12 --password medora
 Global flags are used for any command:
 ```
 -h, --help                help for bmcert
-    --pkipath string      The vault certificate authority mount point (default "/v1/bm-pki-int/issue/bluemedora-dot-localnet")
     --tls                 Enable or disable TLS encryption "--tls=true" (Defaults to true) (default true)
     --tls-skip-verify     Disable certificate verifiction when communicating with the Vault API (Defaults to false)
-    --vault-host string   The vault server (default "vault.bluemedora.localnet")
-    --vault-port string   The vault http port (default "8200")
     --verbose             Enable verbose output --verbose
 ```
 
