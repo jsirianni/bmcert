@@ -47,7 +47,6 @@ bmcert create --hostname bob.bluemedora.localnet --format p12 --password medora
 Global flags are used for any command:
 ```
 -h, --help                help for bmcert
-    --tls                 Enable or disable TLS encryption "--tls=true" (Defaults to true) (default true)
     --tls-skip-verify     Disable certificate verifiction when communicating with the Vault API (Defaults to false)
     --verbose             Enable verbose output --verbose
 ```
