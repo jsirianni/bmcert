@@ -26,22 +26,22 @@ type Request struct {
 }
 
 type ApiResponse struct {
-	Request_id string      `json:request_id`
-	Lease_id   string      `json:lease_id`    // usually null
-	Renewable  bool        `json:renewable`
-	Lease_duration float32 `json:lease_duration`
-	Data SignedCertificate `json:data`
-	Wrap_info  string      `json:wrap_info`   // usually null
-	Warnings   string      `json:warnings`    // usually null
-	Auth       string      `json:auth`        // usually null
+	Request_id string      `json:"request_id"`
+	Lease_id   string      `json:"lease_id"`    // usually null
+	Renewable  bool        `json:"renewable"`
+	Lease_duration float32 `json:"lease_duration"`
+	Data SignedCertificate `json:"data"`
+	Wrap_info  string      `json:"wrap_info"`   // usually null
+	Warnings   string      `json:"warnings"`    // usually null
+	Auth       string      `json:"auth"`        // usually null
 }
 
 type SignedCertificate struct {
-	Certificate string      `json:certificate`
-	Issuing_ca string       `json:issuing_ca`
-	Private_key string 	    `json:private_key`
-	Private_key_type string `json:private_key_type`
-	Serial_number string    `json:serial_number`
+	Certificate string      `json:"certificate"`
+	Issuing_ca string       `json:"issuing_ca"`
+	Private_key string 	    `json:"private_key"`
+	Private_key_type string `json:"private_key_type"`
+	Serial_number string    `json:"serial_number"`
 }
 
 
