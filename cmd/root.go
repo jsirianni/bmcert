@@ -3,6 +3,8 @@ import (
 	"fmt"
 	"os"
 
+	"bmcert/auth"
+
 	"github.com/spf13/cobra"
 )
 
@@ -52,7 +54,7 @@ func GetVaultToken() string {
 	var token string
 
 	if githubauth == true {
-		token = GithubAuth()
+		token = auth.GithubAuth()
 		if len(token) == 0 {
 			fmt.Println("Failed to get vault token using github token")
 			os.Exit(1)
