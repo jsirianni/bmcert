@@ -58,13 +58,16 @@ func GetVaultAuthUrl() string {
 
     // vault addr includes the protocol and port
     // https://vault.mynetwork.net:8200
-	return url + "/v1/auth/github/login"
+	return url + "/v1/auth"
 }
 
 
 // authenticates against vault with a github token
 // returns github token as a string
 func GithubAuth() string {
+    var authurl string = GetVaultAuthUrl() + "/github/login"
+
+
     // get the github token from the environment
 	token := os.Getenv("VAULT_GITHUB_TOKEN")
     if len(token) == 0 {
@@ -74,7 +77,7 @@ func GithubAuth() string {
 
 
 	// create the http request
-	req, err := http.NewRequest("POST", GetVaultAuthUrl(), bytes.NewBuffer([]byte("{\"token\": \"" + token + "\"}")))
+	req, err := http.NewRequest("POST", authurl, bytes.NewBuffer([]byte("{\"token\": \"" + token + "\"}")))
 	if err != nil {
 		fmt.Println(err.Error())
 		os.Exit(1)
