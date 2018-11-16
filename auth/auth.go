@@ -1,5 +1,5 @@
 /*
-bmcert/auth manages retriving authentication tokens from a
+bmcert/auth manages retrieving authentication tokens from a
 vault server. bmcert/auth relies upon the following environment
 variables in order to function:
 
