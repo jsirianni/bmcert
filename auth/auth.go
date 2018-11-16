@@ -63,7 +63,7 @@ func GetVaultAuthUrl() string {
 
 
 // authenticates against vault with a github token
-// returns github token as a string
+// returns vault token as a string
 func GithubAuth() string {
     var authurl string = GetVaultAuthUrl() + "/github/login"
 
