@@ -29,7 +29,7 @@ func init() {
 	// global arguments
 	rootCmd.PersistentFlags().BoolVarP(&skipverify, "tls-skip-verify", "", false, "Disable certificate verification when communicating with the Vault API (Defaults to false)")
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "", false, "Enable verbose output --verbose")
-	rootCmd.PersistentFlags().BoolVarP(&githubauth, "github-auth", "", true, "Enable github authentication")
+	rootCmd.PersistentFlags().BoolVarP(&githubauth, "github-auth", "", true, "Github authentication (-github-auth=false to disable)")
 }
 
 
