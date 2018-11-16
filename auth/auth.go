@@ -1,3 +1,11 @@
+/*
+bmcert/auth manages retriving authentication tokens from a
+vault server. bmcert/auth relies upon the following environment
+variables in order to function:
+
+VAULT_ADDR          // https://vault.mynet.com:8200
+VAULT_GITHUB_TOKEN  // required for github auth
+*/
 package auth
 import (
 	"fmt"
