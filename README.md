@@ -14,8 +14,14 @@ bmcert --help
 
 `bmcert` relies on two environment variables
 ```
-VAULT_TOKEN=<your vault token>
-VAULT_CERT_URL=<path to your vault pki endpoint>
+# your github token
+VAULT_GITHUB_TOKEN=<token here>
+
+# vault server url
+VAULT_ADDR=https://vault.mynet.com:8200
+
+# full URL to vault server, including the pki path
+VAULT_CERT_URL=https://vault.mynet.com:8200/v1/<pki endpoint>
 ```
 
 ## Usage

@@ -102,7 +102,7 @@ func createCertificate() {
 
 
 func requestCertificate() ApiResponse {
-	var url string = GetVaultUrl()
+	var url string = GetVaultPkiUrl()
 
 	// create the json payload
 	payload, err := json.Marshal(request)
