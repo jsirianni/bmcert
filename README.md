@@ -12,7 +12,7 @@ bmcert --help
 ## Installation
 `bmcert` should be placed somewhere in your systems `path` and made executable.
 
-`bmcert` relies on two environment variables
+`bmcert` relies on environment variables
 ```
 # your github token
 VAULT_GITHUB_TOKEN=<token here>
