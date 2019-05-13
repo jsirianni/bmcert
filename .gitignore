@@ -13,3 +13,5 @@
 
 # ignore binary build
 bmcert
+*.zip
+*SHA256SUMS
