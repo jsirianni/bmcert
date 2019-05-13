@@ -15,7 +15,7 @@ import (
 
 	"github.com/spf13/cobra"
 	pkcs12 "github.com/BlueMedoraPublic/go-pkcs12"
-	"github.com/hashicorp/vault/helper/certutil"
+	"github.com/hashicorp/vault/sdk/helper/certutil"
 )
 
 
