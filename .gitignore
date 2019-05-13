@@ -13,3 +13,4 @@
 
 # ignore binary build
 bmcert
+*.zip
