@@ -24,7 +24,7 @@ pipeline {
         SLACK_HOOK_URL = credentials('SLACK_HOOK_URL')
         VAULT_ADDR = credentials('VAULT_ADDR')
         VAULT_CERT_URL = credentials('VAULT_CERT_URL')
-        VAULT_GITHUB_TOKEN = credentials('VAULT_GITHUB_TOKEN')
+        VAULT_GITHUB_TOKEN = credentials('GITHUB_TOKEN')
     }
     stages {
         stage('Checkout SCM') {
