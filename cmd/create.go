@@ -8,9 +8,10 @@ import (
 	"net/http"
 	"bytes"
 	"io/ioutil"
-	"crypto/tls"
 	"crypto/x509"
 	"math/rand"
+
+	"bmcert/util/httpclient"
 
 	"github.com/spf13/cobra"
 	pkcs12 "github.com/BlueMedoraPublic/go-pkcs12"
@@ -83,10 +84,8 @@ func init() {
 
 
 func createCertificate() {
-	// Disable TLS verification globaly for this command
-	if skipverify == true {
-		http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
-	}
+	httpclient.ConfigureCertVerification(skipverify)
+
 
 	if parseArgs() != true {
 		os.Exit(1)
