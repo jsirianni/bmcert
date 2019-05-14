@@ -53,10 +53,11 @@ RUN \
 RUN ./bmcert create --hostname test.bluemedora.localnet --tls-skip-verify && \
     openssl x509 -in test.bluemedora.localnet.pem -text -noout
 
-# just create
-RUN ./bmcert create --hostname test.bluemedora.localnet --tls-skip-verify --format p12
-RUN ./bmcert create --hostname test.bluemedora.localnet --tls-skip-verify --format cert
+RUN ./bmcert create --hostname test.bluemedora.localnet --tls-skip-verify --format cert && \
+    openssl x509 -in test.bluemedora.localnet.crt -text -noout && \
+    openssl rsa -in test.bluemedora.localnet.key -check
 
+RUN ./bmcert create --hostname test.bluemedora.localnet --tls-skip-verify --format p12 --password password
 
 # build the release with an image that includes zip and sha256sum
 FROM debian:stable
