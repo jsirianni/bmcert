@@ -1,6 +1,5 @@
 
-# staging environment retrieves dependencies and compiles
-# for Linux and MacOS
+# staging environment compiles for Linux and MacOS
 FROM golang:1.12 AS stage
 
 WORKDIR /build/src/bmcert
@@ -58,7 +57,6 @@ RUN ./bmcert create --hostname test.bluemedora.localnet --tls-skip-verify && \
 RUN ./bmcert create --hostname test.bluemedora.localnet --tls-skip-verify --format p12
 RUN ./bmcert create --hostname test.bluemedora.localnet --tls-skip-verify --format cert
 
-RUN openssl x509 -in test.bluemedora.localnet.pem -text -noout
 
 # build the release with an image that includes zip and sha256sum
 FROM debian:stable
