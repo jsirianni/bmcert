@@ -28,8 +28,8 @@ func (config *CertConfig) Init() {
 func (config *CertConfig) CreateCertificate() (SignedCertificate, error) {
     var apiResponse apiResponse
 
-	if config.parseArgs() != true {
-        return apiResponse.Data, errors.New("parseArgs() returned an error.")
+	if err := config.parseArgs(); err != nil {
+        return apiResponse.Data, err
 	}
 
 	apiResponse, err := config.requestCertificate()
@@ -132,37 +132,7 @@ func (config *CertConfig) WriteCert(c SignedCertificate) error {
 	return nil
 }
 
-// set newcert.alt_names if it is valid
-func (config *CertConfig) setAltNames() bool {
-	if len(config.AltNames) > 0 {
-		config.certificateReq.Alt_names = config.AltNames
-		return true
-	} else {
-		return false
-	}
-}
 
-
-// set newcert.ip_sans if it is valid
-func (config *CertConfig) setIPsans() bool {
-	if len(config.IPsans) > 0 {
-		config.certificateReq.Ip_sans = config.IPsans
-		return true
-	} else {
-		return false
-	}
-}
-
-
-// set newcert.uri_sans if it is valid
-func (config *CertConfig) setURISans() bool {
-	if len(config.URISans) > 0 {
-		config.certificateReq.Uri_sans = config.URISans
-		return true
-	} else {
-		return false
-	}
-}
 
 
 // perform basic checks on the certificate before assuming it is valid
@@ -211,11 +181,11 @@ func (config *CertConfig) getDir() string {
 
 // parseArgs parses passed arguments, and assigns them to "newcert CertificateReq"
 // Returns true if successful, else false
-func (config *CertConfig) parseArgs() bool {
+func (config *CertConfig) parseArgs() error {
 
 
-	if config.setHostname() != true {
-		return false
+	if err := config.setHostname(); err != nil {
+		return err
 	}
 
 	// set alt, ip and uri sans but ignore the return
@@ -224,12 +194,12 @@ func (config *CertConfig) parseArgs() bool {
 	config.setIPsans()
 	config.setURISans()
 
-	return true
+	return nil
 }
 
 
 // set newcert.Hostname if it is valid
-func (config *CertConfig) setHostname() bool {
+func (config *CertConfig) setHostname() error {
 
 
 	// split Hostname argument
@@ -237,23 +207,52 @@ func (config *CertConfig) setHostname() bool {
 
 	// if Hostname is of length zero, return early
 	if len(config.Hostname) == 0 {
-		fmt.Println("'--Hostname' appears to be empty")
-		return false
+		return errors.New("'--Hostname' appears to be empty")
 	}
 
 	// if Hostname appears to be fqdn
 	if len(stringSlice) == 3 {
 		config.certificateReq.Common_name = config.Hostname
-		return true
+		return nil
 
 	// if Hostname appears to be short
 	} else if len(stringSlice) == 1 {
-		fmt.Println("Hostname appears to be a short Hostname. FQDN is required for --Hostname")
-		return false
+		return errors.New("Hostname appears to be a short Hostname. FQDN is required for --Hostname")
 
 	// return false if Hostname appears to be invalid
 	} else {
-		fmt.Println("Hostname appears to be neither a short Hostname nor a FQDN")
+		return errors.New("Hostname appears to be neither a short Hostname nor a FQDN")
+	}
+}
+
+// set newcert.alt_names if it is valid
+func (config *CertConfig) setAltNames() bool {
+	if len(config.AltNames) > 0 {
+		config.certificateReq.Alt_names = config.AltNames
+		return true
+	} else {
+		return false
+	}
+}
+
+
+// set newcert.ip_sans if it is valid
+func (config *CertConfig) setIPsans() bool {
+	if len(config.IPsans) > 0 {
+		config.certificateReq.Ip_sans = config.IPsans
+		return true
+	} else {
+		return false
+	}
+}
+
+
+// set newcert.uri_sans if it is valid
+func (config *CertConfig) setURISans() bool {
+	if len(config.URISans) > 0 {
+		config.certificateReq.Uri_sans = config.URISans
+		return true
+	} else {
 		return false
 	}
 }
