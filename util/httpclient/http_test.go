@@ -1,60 +1,46 @@
 package httpclient
 
 import (
-    "strconv"
-    "net/http"
-	"testing"
+    "testing"
 )
 
-func TestConfigureCertVerification(t *testing.T) {
-    // test disabling verification
-    ConfigureCertVerification(true)
-    if http.DefaultTransport.(*http.Transport).TLSClientConfig.InsecureSkipVerify != true {
-        t.Errorf("InsecureSkipVerify was not enabled when it should have been.")
+func TestAPIErrorHelper(t *testing.T) {
+
+    err := APIErrorHelper("https://err.com", 500, []byte("some bad error"))
+    if err == nil {
+        t.Errorf("Expected an error when calling APIErrorHelper(), got 'nil'")
+        return
+    }
+
+    if len(err.Error()) < 1 {
+        t.Errorf("Expected APIErrorHelper() to return an error greater than length zero")
     }
 }
 
-func TestCreateRequest(t *testing.T) {
-    x, err := CreateRequest("GET", "https://google.com", nil, "")
-    if err != nil {
-        t.Errorf(err.Error())
+func TestStatusValid(t *testing.T) {
+    // should return false
+    if StatusValid(500) == true {
+        t.Errorf("Expected StatusValid(500) to return false, got true")
+    }
 
-    } else if x.Header.Get("Content-Type") != "application/json" {
-        t.Errorf("Content-Type header was not set to application/json")
+    if StatusValid(400) == true {
+        t.Errorf("Expected StatusValid(500) to return false, got true")
+    }
 
-    } else if x.Header.Get("Content-Type") != "application/json" {
-        t.Errorf("Accept header was not set to application/json")
+    if StatusValid(300) == true {
+        t.Errorf("Expected StatusValid(500) to return false, got true")
+    }
 
-    } else if len(x.Header.Get("Authorization")) == 0 {
-        t.Errorf("Authorization header was not set to application/json")
+    if StatusValid(202) == true {
+        t.Errorf("Expected StatusValid(202) to return false, got true")
+    }
+
+    // should return true
+    if StatusValid(201) == false {
+        t.Errorf("Expected StatusValid(201) to return true, got false")
+    }
+
+    if StatusValid(200) == false {
+        t.Errorf("Expected StatusValid(200) to return true, got false")
     }
 }
-
-func TestPerformRequest(t *testing.T) {
-    x, err := CreateRequest("GET", "https://google.com", nil, "")
-    if err != nil {
-        t.Errorf(err.Error())
-    }
-
-    resp, status, err := PerformRequest(x, true)
-    if err != nil {
-        t.Errorf(err.Error())
-
-    } else if status != 200 {
-        t.Errorf("Expected status 200, got" + strconv.Itoa(status))
-
-    } else if len(resp) == 0 {
-        t.Errorf("Response length was 0")
-    }
-
-}
-
-
-// not a great test, but shows that the function should
-// not return an error
-/*func TesthttpClient(t *testing.T) {
-    _, err := httpClient()
-    if err != nil {
-        t.Errorf(err.Error())
-    }
-}*/
