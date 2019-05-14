@@ -14,9 +14,6 @@ bmcert --help
 
 `bmcert` relies on environment variables
 ```
-# your github token
-VAULT_GITHUB_TOKEN=<token here>
-
 # vault server url
 VAULT_ADDR=https://vault.mynet.com:8200
 
@@ -25,6 +22,17 @@ VAULT_CERT_URL=https://vault.mynet.com:8200/v1/<pki endpoint>
 ```
 
 ## Usage
+
+### Authentication
+`bmcert` will check for `VAULT_TOKEN` and `~/.vault-token`
+respectively. `~/.vault-token` can be generated with the Vault
+CLI by running your preferred vault login command:
+```
+vault login -method=github token=$VAULT_GITHUB_TOKEN
+```
+
+Allowing the Vault CLI to handle authentication means `bmcert`
+is compatible with all forms of Vault authentication.
 
 ### Create Certificate
 Call the `create` command to generate a certificate.
@@ -76,10 +84,22 @@ When calling `bmcert create`:
 
 
 ## Building from Source
-Ensure your `GOPATH` is set appropriately and then run:
+A Dockerfile is provided for building `bmcert`. Docker will
+compile, run unit tests, and zip binaries for Linux and MacOS
+as well as generating a sha256 sum file.
+
+To use Docker:
 ```
-go get github.com:BlueMedora/bmcert
-cd $GOPATH/src/github.com/BlueMedora/bmcert
-go get .
-go build
+./build.sh
+```
+
+To build outside of docker, ensure your `GOPATH` is set:
+```
+env CGO_ENABLED=0 go test ./...
+
+# macos
+env CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build
+
+# linux
+env CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build
 ```

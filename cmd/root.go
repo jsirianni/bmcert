@@ -3,71 +3,60 @@ import (
 	"fmt"
 	"os"
 
-	"bmcert/auth"
+	"bmcert/cert"
 
 	"github.com/spf13/cobra"
 )
 
+var skipverify bool
+var verbose    bool
+var hostname     string
+var outputdir    string
+var outputformat string
+var password     string
+var altnames     string
+var ipsans       string
+var urisans      string
 
-// rootCmd represents the base command when called without any subcommands
+var bmcert cert.CertConfig
+
 var rootCmd = &cobra.Command{
 	Use:   "bmcert",
 	Short: "A CLI for generating certificates with Vault",
 	Long: `A CLI for generating certificates with Hashicorp Vault.`,
 }
 
-
-// Execute adds all child commands to the root command and sets flags appropriately.
-// This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		printErrorExit(err, 1)
 	}
 }
-
 
 func init() {
-	// global arguments
+	cobra.OnInitialize(initConfig)
+
 	rootCmd.PersistentFlags().BoolVarP(&skipverify, "tls-skip-verify", "", false, "Disable certificate verification when communicating with the Vault API (Defaults to false)")
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "", false, "Enable verbose output --verbose")
-	rootCmd.PersistentFlags().BoolVarP(&githubauth, "github-auth", "", true, "Github authentication (-github-auth=false to disable)")
 }
 
+// assign all command line arguments to the bmcert struct,
+// making them accessable by bmcert internal functions
+func initConfig() {
+	bmcert.AltNames = altnames
+	bmcert.Hostname = hostname
+	bmcert.IPsans = ipsans
+	bmcert.OutputDir = outputdir
+	bmcert.OutputFormat = outputformat
+	bmcert.Password = password
+	bmcert.SkipVerify = skipverify
+	bmcert.URISans = urisans
+	bmcert.Verbose = verbose
 
-
-// returns the full URL for the VAULT PKI endpoint
-// example: https://vault.localnet:8200/v1/pki/issue/myrole
-func GetVaultPkiUrl() string {
-	url := os.Getenv("VAULT_CERT_URL")
-	if len(url) == 0 {
-		fmt.Println("Could not read environment VAULT_CERT_URL")
-		os.Exit(1)
-	}
-	return url
+	bmcert.Init()
 }
 
-
-// returns the vault token with the selected authentication
-// method
-func GetVaultToken() string {
-	var token string
-
-	if githubauth == true {
-		token = auth.GithubAuth()
-		if len(token) == 0 {
-			fmt.Println("Failed to get vault token using github token")
-			os.Exit(1)
-		}
-
-	// static token is the last resort
-	} else {
-		token = os.Getenv("VAULT_TOKEN")
-		if len(token) == 0 {
-			fmt.Println("Could not read environment VAULT_TOKEN")
-			os.Exit(1)
-		}
-	}
-
-	return token
+// helper function that prints an error to Stderr and exits
+func printErrorExit(err error, code int) {
+	fmt.Fprintf(os.Stderr, err.Error())
+	os.Exit(code)
 }

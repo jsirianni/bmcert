@@ -18,7 +18,8 @@ ADD . /build/src/bmcert
 RUN \
     go get github.com/spf13/cobra && \
     go get github.com/BlueMedoraPublic/go-pkcs12 && \
-    go get github.com/hashicorp/vault/sdk/helper/certutil
+    go get github.com/hashicorp/vault/sdk/helper/certutil && \
+    go get github.com/mitchellh/go-homedir
 
 RUN go test ./...
 
@@ -34,13 +35,26 @@ ARG addr
 ARG url
 ENV VAULT_GITHUB_TOKEN=$token
 ENV VAULT_ADDR=$addr
+ENV VAULT_SKIP_VERIFY=true
 ENV VAULT_CERT_URL=$url
 
 COPY --from=stage /build/src/bmcert/bmcert-linux bmcert
 
-RUN apt-get update && apt-get install -y openssl
+RUN apt-get update >> /dev/null && \
+    apt-get install -y openssl wget unzip >> /dev/null
 
-RUN ./bmcert create --hostname test.bluemedora.localnet --tls-skip-verify
+RUN \
+    wget -q https://releases.hashicorp.com/vault/1.1.2/vault_1.1.2_linux_amd64.zip && \
+    unzip vault_1.1.2_linux_amd64.zip && mv vault /usr/bin && chmod +x /usr/bin/vault
+
+RUN \
+    vault login -method=github token=$VAULT_GITHUB_TOKEN >> /dev/null
+
+# create and validate
+RUN ./bmcert create --hostname test.bluemedora.localnet --tls-skip-verify && \
+    openssl x509 -in test.bluemedora.localnet.pem -text -noout
+
+# just create
 RUN ./bmcert create --hostname test.bluemedora.localnet --tls-skip-verify --format p12
 RUN ./bmcert create --hostname test.bluemedora.localnet --tls-skip-verify --format cert
 
@@ -52,7 +66,8 @@ FROM debian:stable
 WORKDIR /
 ARG version
 
-RUN apt-get update && apt-get install zip -y
+RUN apt-get update >> /dev/null && \
+    apt-get install zip -y >> /dev/null
 
 COPY --from=stage /build/src/bmcert/bmcert-linux bmcert
 RUN zip bmcert-v${version}-linux-amd64.zip bmcert
