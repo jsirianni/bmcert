@@ -36,6 +36,7 @@ pipeline {
             steps {
                     sh '''
             rm -f *.zip
+            export VAULT_TOKEN=`vault login -no-store -token-only -method=github token=$VAULT_GITHUB_TOKEN`
             ./build.sh
             '''
             }
