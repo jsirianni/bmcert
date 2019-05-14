@@ -1,10 +1,11 @@
 package auth
 
 import (
-	"os"
 	"fmt"
 	"io/ioutil"
 	"strings"
+
+	"bmcert/util/env"
 
 	"github.com/mitchellh/go-homedir"
 )
@@ -13,8 +14,11 @@ import (
 // environment, first checking for VAULT_TOKEN variable,
 // and falling back to ~/.vault-token
 func ReadVaultToken() (string, error) {
-	if len(os.Getenv("VAULT_TOKEN")) > 0 {
-		return os.Getenv("VAULT_TOKEN"), nil
+	// env.Read() returns an error if length is < 1,
+	// therefor, if err is nil, return x
+	x, err := env.Read("VAULT_TOKEN")
+	if err == nil {
+		return x, nil
 	}
 
 	filePath, err := getVaultTokenFilePath()
