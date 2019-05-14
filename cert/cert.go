@@ -132,9 +132,6 @@ func (config *CertConfig) WriteCert(c SignedCertificate) error {
 	return nil
 }
 
-
-
-
 // perform basic checks on the certificate before assuming it is valid
 func (certresp apiResponse) validateCertificate(config *CertConfig) bool {
 	var valid bool = true
@@ -160,7 +157,6 @@ func (certresp apiResponse) validateCertificate(config *CertConfig) bool {
 	return valid
 }
 
-
 // Return the output directory, with a trailing "/"
 func (config *CertConfig) getDir() string {
 	if len(config.OutputDir) != 0 {
@@ -182,17 +178,14 @@ func (config *CertConfig) getDir() string {
 // parseArgs parses passed arguments, and assigns them to "newcert CertificateReq"
 // Returns true if successful, else false
 func (config *CertConfig) parseArgs() error {
-
-
 	if err := config.setHostname(); err != nil {
 		return err
 	}
 
-	// set alt, ip and uri sans but ignore the return
-	// value, as they do not matter in this context
-	config.setAltNames()
-	config.setIPsans()
-	config.setURISans()
+	// set alt, ip and uri sans
+    config.certificateReq.Alt_names = config.AltNames
+    config.certificateReq.Ip_sans = config.IPsans
+    config.certificateReq.Uri_sans = config.URISans
 
 	return nil
 }
@@ -200,8 +193,6 @@ func (config *CertConfig) parseArgs() error {
 
 // set newcert.Hostname if it is valid
 func (config *CertConfig) setHostname() error {
-
-
 	// split Hostname argument
 	stringSlice := strings.Split(config.Hostname, ".")
 
@@ -222,37 +213,5 @@ func (config *CertConfig) setHostname() error {
 	// return false if Hostname appears to be invalid
 	} else {
 		return errors.New("Hostname appears to be neither a short Hostname nor a FQDN")
-	}
-}
-
-// set newcert.alt_names if it is valid
-func (config *CertConfig) setAltNames() bool {
-	if len(config.AltNames) > 0 {
-		config.certificateReq.Alt_names = config.AltNames
-		return true
-	} else {
-		return false
-	}
-}
-
-
-// set newcert.ip_sans if it is valid
-func (config *CertConfig) setIPsans() bool {
-	if len(config.IPsans) > 0 {
-		config.certificateReq.Ip_sans = config.IPsans
-		return true
-	} else {
-		return false
-	}
-}
-
-
-// set newcert.uri_sans if it is valid
-func (config *CertConfig) setURISans() bool {
-	if len(config.URISans) > 0 {
-		config.certificateReq.Uri_sans = config.URISans
-		return true
-	} else {
-		return false
 	}
 }
