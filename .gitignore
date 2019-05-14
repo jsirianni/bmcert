@@ -15,3 +15,8 @@
 bmcert
 *.zip
 *SHA256SUMS
+*.pem
+*.p12
+*.cert
+*.crt
+*.key

@@ -1,26 +1,16 @@
 package httpclient
 
 import (
-    "os"
     "fmt"
+    "crypto/tls"
     "net/http"
     "io/ioutil"
     "bytes"
-    "crypto/tls"
-    "encoding/json"
+    "errors"
+    "strconv"
 )
 
-// struct is printed as json when debug is passed to
-// PerformRequest
-type debug struct {
-    Host   string
-    Path   string
-    Method string
-    SkipVerify bool
-}
-
-// ConfigureCertVerification disables tls verification if true
-// is passed
+// ConfigureCertVerification allows tls verification to be disabled
 func ConfigureCertVerification(skipVerify bool) {
     if skipVerify == true {
         fmt.Println("Warning: TLS verification disabled due to flag '--tls-skip-verify'")
@@ -28,34 +18,55 @@ func ConfigureCertVerification(skipVerify bool) {
     }
 }
 
+// Request returns a response body and status code
+func Request(method string, uri string, payload []byte, token string) ([]byte, error) {
+    req, err := CreateRequest(method, uri, payload, token)
+    if err != nil {
+        return nil, err
+    }
+
+    body, status, err := performRequest(req)
+
+    if StatusValid(status) == false {
+        return body, APIErrorHelper(uri, status, body)
+    }
+    return body, err
+}
+
+// APIErrorHelper formats an error message
+func APIErrorHelper(uri string, status int, respBody []byte) error {
+    return errors.New(uri + " returned " + strconv.Itoa(status) + "\n" + string(respBody))
+}
+
+// StatusValid takes a status code, returns true if status
+// is 200 or 201
+func StatusValid(status int) bool {
+    switch status {
+    case 200:
+        return true
+    case 201:
+        return true
+    default:
+        return false
+    }
+}
+
 // CreateRequest returns an http request with headers
-func CreateRequest(method string, uri string, payload []byte, auth string) (*http.Request, error) {
+func CreateRequest(method string, uri string, payload []byte, token string) (*http.Request, error) {
     req, err := http.NewRequest(method, uri, bytes.NewBuffer(payload))
     if err != nil {
-        return req, err
+        return nil, err
     }
     req.Header.Set("Content-Type", "application/json")
     req.Header.Set("Accept", "application/json")
-    req.Header.Set("Authorization", "Basic "+auth)
-    return req, nil
+    req.Header.Set("X-Vault-Token", token)
+    return req, err
 }
 
-// HttpClientRequest performs an HTTP request
-// Pass a http.Request object
-// Returns a response body and a status code ([]byte, int)
-func PerformRequest(req *http.Request, verbose bool) ([]byte, int, error) {
-    if verbose == true {
-        if err := printRequest(req); err != nil {
-            fmt.Fprintln(os.Stderr, err.Error())
-        }
-    }
-
-    //client, err := httpClient()
-    //if err != nil {
-    //    return nil, 0, err
-    //}
+// PerformRequest performs an HTTP request and returns a
+// response body and status code
+func performRequest(req *http.Request) ([]byte, int, error) {
     client := &http.Client{}
-
     resp, err := client.Do(req)
     if err != nil {
         return nil, 0, err
@@ -66,33 +77,5 @@ func PerformRequest(req *http.Request, verbose bool) ([]byte, int, error) {
         return nil, 0, err
     }
     defer resp.Body.Close()
-
-    return body, resp.StatusCode, nil
-}
-
-// ConfigureTLS sets the root certificate path to include all
-// paths on a Darwin system, which is not done by default
-/*func httpClient() (*http.Client, error) {
-    tlsConfig := &tls.Config{}
-    c := cleanhttp.DefaultClient()
-    t := cleanhttp.DefaultTransport()
-    t.TLSClientConfig = tlsConfig
-    c.Transport = t
-    return c, nil
-}*/
-
-
-func printRequest(req *http.Request) error {
-    var x debug
-    x.Host = req.Host
-    x.Path = req.URL.RequestURI()
-    x.Method = req.Method
-    x.SkipVerify = http.DefaultTransport.(*http.Transport).TLSClientConfig.InsecureSkipVerify
-
-    d, err := json.MarshalIndent(x, "", "\t")
-    if err != nil {
-        return err
-    }
-    fmt.Printf("%s\n", d)
-    return nil
+    return body, resp.StatusCode, err
 }
