@@ -44,3 +44,20 @@ func TestStatusValid(t *testing.T) {
         t.Errorf("Expected StatusValid(200) to return true, got false")
     }
 }
+
+func TestCreateRequest(t *testing.T) {
+    req, err := CreateRequest("POST", "https://test.com", []byte("payload"), "token")
+    if err != nil {
+        t.Errorf("Expected CreateRequest() to NOT return an error, got " + err.Error())
+        return
+    }
+
+    if req.Header.Get("X-Vault-Token") != "token" {
+        t.Errorf("Expected CreateRequest() to return a http request with header X-Vault-Token='token'")
+    }
+
+    if req.Header.Get("Content-Type") != "application/json" {
+        t.Errorf("Expected CreateRequest() to return a http request with header Content-Type='application/json'")    
+    }
+
+}

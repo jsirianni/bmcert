@@ -20,7 +20,7 @@ func ConfigureCertVerification(skipVerify bool) {
 
 // Request returns a response body and status code
 func Request(method string, uri string, payload []byte, token string) ([]byte, error) {
-    req, err := createRequest(method, uri, payload, token)
+    req, err := CreateRequest(method, uri, payload, token)
     if err != nil {
         return nil, err
     }
@@ -52,8 +52,7 @@ func StatusValid(status int) bool {
 }
 
 // CreateRequest returns an http request with headers
-func createRequest(method string, uri string, payload []byte, token string) (*http.Request, error) {
-    fmt.Println(method, uri, string(payload), token)
+func CreateRequest(method string, uri string, payload []byte, token string) (*http.Request, error) {
     req, err := http.NewRequest(method, uri, bytes.NewBuffer(payload))
     if err != nil {
         return nil, err
@@ -78,6 +77,5 @@ func performRequest(req *http.Request) ([]byte, int, error) {
         return nil, 0, err
     }
     defer resp.Body.Close()
-    fmt.Println(resp.StatusCode)
     return body, resp.StatusCode, err
 }
