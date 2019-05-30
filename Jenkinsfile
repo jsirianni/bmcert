@@ -46,7 +46,7 @@ pipeline {
                     sh '''
             export VAULT_TOKEN=`vault login -no-store -token-only -method=github token=$VAULT_GITHUB_TOKEN`
             bmcert-*-linux-amd64.zip
-            ./bmcert create --hostname test.bluemedora.localnet
+            ./bmcert create --hostname test.bluemedora.localnet --tls-skip-verify
             openssl x509 -in zk-ref-c1-2.bluemedora.localnet.pem -text -noout >> /dev/null
             '''
             }
