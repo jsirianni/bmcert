@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"fmt"
 	"io/ioutil"
 	"strings"
 
@@ -32,7 +31,6 @@ func ReadVaultToken() (string, error) {
 	}
 
 	lines := strings.Split(string(f), "\n")
-	fmt.Println(lines[0])
 	return lines[0], nil
 }
 
