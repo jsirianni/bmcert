@@ -23,7 +23,6 @@ pipeline {
     environment {
         SLACK_HOOK_URL = credentials('SLACK_HOOK_URL')
         VAULT_ADDR = credentials('VAULT_ADDR')
-        VAULT_SKIP_VERIFY = 1
         VAULT_CERT_URL = credentials('VAULT_CERT_URL')
         VAULT_GITHUB_TOKEN = credentials('GITHUB_TOKEN')
     }
@@ -38,16 +37,6 @@ pipeline {
                     sh '''
             rm -f *.zip
             ./build.sh
-            '''
-            }
-        }
-        stage('Test create certificate') {
-            steps {
-                    sh '''
-            export VAULT_TOKEN=`vault login -no-store -token-only -method=github token=$VAULT_GITHUB_TOKEN`
-            unzip bmcert-*-linux-amd64.zip
-            ./bmcert create --hostname test.bluemedora.localnet --tls-skip-verify
-            openssl x509 -in zk-ref-c1-2.bluemedora.localnet.pem -text -noout >> /dev/null
             '''
             }
         }
