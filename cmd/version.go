@@ -6,7 +6,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const VERSION = "0.2.1"
+// VERSION const is used for the version command and
+// by the Makefile for determining file names
+const VERSION = "0.2.2"
 
 // versionCmd represents the version command
 var versionCmd = &cobra.Command{
