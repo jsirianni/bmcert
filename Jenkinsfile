@@ -35,8 +35,8 @@ pipeline {
         stage('Run build script') {
             steps {
                     sh '''
-            rm -f *.zip
-            ./build.sh
+            make clean
+            make
             '''
             }
         }
