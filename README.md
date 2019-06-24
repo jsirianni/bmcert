@@ -84,13 +84,20 @@ When calling `bmcert create`:
 
 
 ## Building from Source
-A Dockerfile is provided for building `bmcert`. Docker will
+A Makefile and Dockerfile are provided for building `bmcert`. Docker will
 compile, run unit tests, and zip binaries for Linux and MacOS
 as well as generating a sha256 sum file.
 
-To use Docker:
+Build and place artifacts in the `artifacts/` directory:
 ```
-./build.sh
+make
+```
+
+You can also cleanup, lint, or test with `make`
+```
+make clean   // removes compiled zip files
+make lint    // requires `golint` be installed
+make test    // runs unit tests, requires a real Vault server
 ```
 
 To build outside of docker, ensure your `GOPATH` is set:
