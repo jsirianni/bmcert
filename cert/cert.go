@@ -20,12 +20,12 @@ import (
 )
 
 // Init sets runtime variables such as tls skip verify
-func (config *CertConfig) Init() {
+func (config *Cert) Init() {
     httpclient.ConfigureCertVerification(config.SkipVerify)
 }
 
 // CreateCertificate calls the Vault API and returns a signed certifcate
-func (config *CertConfig) CreateCertificate() (SignedCertificate, error) {
+func (config *Cert) CreateCertificate() (SignedCertificate, error) {
     var apiResponse apiResponse
 
 	if err := config.parseArgs(); err != nil {
@@ -44,7 +44,7 @@ func (config *CertConfig) CreateCertificate() (SignedCertificate, error) {
     return apiResponse.Data, nil
 }
 
-func (config *CertConfig) requestCertificate() (apiResponse, error) {
+func (config *Cert) requestCertificate() (apiResponse, error) {
     var r apiResponse
 
 	payload, err := json.Marshal(config.certificateReq)
@@ -74,36 +74,36 @@ func (config *CertConfig) requestCertificate() (apiResponse, error) {
 	return r, nil
 }
 
-// Write the certificate to disk
-func (config *CertConfig) WriteCert(c SignedCertificate) error {
+// WriteCert the certificate to disk
+func (config *Cert) WriteCert(c SignedCertificate) error {
 
 	// write a single pem encoded certificate chain
 	if config.OutputFormat == "pem" {
-		pem := []byte(c.Certificate + "\n" + c.Private_key + "\n" + c.Issuing_ca)
-		pem_file := config.getDir() + config.Hostname + ".pem"
-        if err := file.WriteFile(pem_file, pem, 0400); err != nil {
+		pem := []byte(c.Certificate + "\n" + c.PrivateKey + "\n" + c.IssuingCa)
+		pemFile := config.getDir() + config.Hostname + ".pem"
+        if err := file.WriteFile(pemFile, pem, 0400); err != nil {
             return err
         }
 
 	// write the certificate and private key to seperate files,
 	// both pem encoded
 	} else if config.OutputFormat == "cert" {
-		crt := []byte(c.Certificate + "\n" + c.Issuing_ca)
-		crt_file := config.getDir() + config.Hostname + ".crt"
-        err := file.WriteFile(crt_file, crt, 0400)
+		crt := []byte(c.Certificate + "\n" + c.IssuingCa)
+		crtFile := config.getDir() + config.Hostname + ".crt"
+        err := file.WriteFile(crtFile, crt, 0400)
 		if err != nil {
 			return err
-		} else {
-			key := []byte(c.Private_key)
-			key_file := config.getDir() + config.Hostname + ".key"
-            err := file.WriteFile(key_file, key, 0400)
-			if err != nil {
-				return err
-			}
+		}
+
+		key := []byte(c.PrivateKey)
+		keyFile := config.getDir() + config.Hostname + ".key"
+        err = file.WriteFile(keyFile, key, 0400)
+		if err != nil {
+			return err
 		}
 
 	} else if config.OutputFormat == "pkcs12" || config.OutputFormat == "p12" {
-		pem, err := certutil.ParsePEMBundle(c.Certificate + "\n" + c.Private_key + "\n" + c.Issuing_ca)
+		pem, err := certutil.ParsePEMBundle(c.Certificate + "\n" + c.PrivateKey + "\n" + c.IssuingCa)
 		if err != nil {
 			return err
 		}
@@ -123,8 +123,8 @@ func (config *CertConfig) WriteCert(c SignedCertificate) error {
 			return err
 		}
 
-		p12_file := config.getDir() + config.Hostname + ".p12"
-        err = file.WriteFile(p12_file, p12, 0400)
+		p12File := config.getDir() + config.Hostname + ".p12"
+        err = file.WriteFile(p12File, p12, 0400)
 		if err != nil {
 			return err
 		}
@@ -133,8 +133,8 @@ func (config *CertConfig) WriteCert(c SignedCertificate) error {
 }
 
 // perform basic checks on the certificate before assuming it is valid
-func (certresp apiResponse) validateCertificate(config *CertConfig) bool {
-	var valid bool = true
+func (certresp apiResponse) validateCertificate(config *Cert) bool {
+	valid := true
 
 	if config.Verbose == true {
 		fmt.Println("Validating certificate response. . .")
@@ -146,11 +146,11 @@ func (certresp apiResponse) validateCertificate(config *CertConfig) bool {
 		valid = false
 		fmt.Println("Certificate appears to be shorter than 500 characters, something is wrong.")
 	}
-	if len(certresp.Data.Issuing_ca) < 500 {
+	if len(certresp.Data.IssuingCa) < 500 {
 		valid = false
 		fmt.Println("Issuing CA appears to be shorter than 500 characters, something is wrong.")
 	}
-	if len(certresp.Data.Private_key) < 500 {
+	if len(certresp.Data.PrivateKey) < 500 {
 		valid = false
 		fmt.Println("Private key appears to be shorter than 500 characters, something is wrong.")
 	}
@@ -158,13 +158,12 @@ func (certresp apiResponse) validateCertificate(config *CertConfig) bool {
 }
 
 // Return the output directory, with a trailing "/"
-func (config *CertConfig) getDir() string {
+func (config *Cert) getDir() string {
 	if len(config.OutputDir) != 0 {
 		if config.OutputDir[len(config.OutputDir)-1:] == "/" {
 			return config.OutputDir
-		} else {
-			return config.OutputDir + "/"
 		}
+		return config.OutputDir + "/"
 	}
 
 	dir, err := os.Getwd()
@@ -177,22 +176,22 @@ func (config *CertConfig) getDir() string {
 
 // parseArgs parses passed arguments, and assigns them to "newcert CertificateReq"
 // Returns true if successful, else false
-func (config *CertConfig) parseArgs() error {
+func (config *Cert) parseArgs() error {
 	if err := config.setHostname(); err != nil {
 		return err
 	}
 
 	// set alt, ip and uri sans
-    config.certificateReq.Alt_names = config.AltNames
-    config.certificateReq.Ip_sans = config.IPsans
-    config.certificateReq.Uri_sans = config.URISans
+    config.certificateReq.AltNames = config.AltNames
+    config.certificateReq.IPSans = config.IPsans
+    config.certificateReq.URISans = config.URISans
 
 	return nil
 }
 
 
 // set newcert.Hostname if it is valid
-func (config *CertConfig) setHostname() error {
+func (config *Cert) setHostname() error {
 	// split Hostname argument
 	stringSlice := strings.Split(config.Hostname, ".")
 
@@ -203,7 +202,7 @@ func (config *CertConfig) setHostname() error {
 
 	// if Hostname appears to be fqdn
 	if len(stringSlice) == 3 {
-		config.certificateReq.Common_name = config.Hostname
+		config.certificateReq.CommonName = config.Hostname
 		return nil
 
 	// if Hostname appears to be short

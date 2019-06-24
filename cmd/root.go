@@ -18,7 +18,7 @@ var altnames     string
 var ipsans       string
 var urisans      string
 
-var bmcert cert.CertConfig
+var bmcert cert.Cert
 
 var rootCmd = &cobra.Command{
 	Use:   "bmcert",
@@ -26,6 +26,8 @@ var rootCmd = &cobra.Command{
 	Long: `A CLI for generating certificates with Hashicorp Vault.`,
 }
 
+// Execute adds all child commands to the root command and sets flags appropriately.
+// This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
 		printErrorExit(err, 1)
