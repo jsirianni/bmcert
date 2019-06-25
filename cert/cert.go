@@ -81,7 +81,7 @@ func (config *Cert) WriteCert(c SignedCertificate) error {
 	if config.OutputFormat == "pem" {
 		pem := []byte(c.Certificate + "\n" + c.PrivateKey + "\n" + c.IssuingCa)
 		pemFile := config.getDir() + config.Hostname + ".pem"
-        if err := file.WriteFile(pemFile, pem, 0400); err != nil {
+        if err := file.WriteFile(pemFile, pem, 0600, config.OverWrite); err != nil {
             return err
         }
 
@@ -90,14 +90,14 @@ func (config *Cert) WriteCert(c SignedCertificate) error {
 	} else if config.OutputFormat == "cert" {
 		crt := []byte(c.Certificate + "\n" + c.IssuingCa)
 		crtFile := config.getDir() + config.Hostname + ".crt"
-        err := file.WriteFile(crtFile, crt, 0400)
+        err := file.WriteFile(crtFile, crt, 0600, config.OverWrite)
 		if err != nil {
 			return err
 		}
 
 		key := []byte(c.PrivateKey)
 		keyFile := config.getDir() + config.Hostname + ".key"
-        err = file.WriteFile(keyFile, key, 0400)
+        err = file.WriteFile(keyFile, key, 0600, config.OverWrite)
 		if err != nil {
 			return err
 		}
@@ -124,7 +124,7 @@ func (config *Cert) WriteCert(c SignedCertificate) error {
 		}
 
 		p12File := config.getDir() + config.Hostname + ".p12"
-        err = file.WriteFile(p12File, p12, 0400)
+        err = file.WriteFile(p12File, p12, 0600, config.OverWrite)
 		if err != nil {
 			return err
 		}

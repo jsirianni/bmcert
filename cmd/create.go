@@ -22,7 +22,7 @@ func init() {
 	createCmd.Flags().StringVarP(&altNames, "alt-names", "", "", "The requested Subject Alternative Names, in a comma-delimited list")
 	createCmd.Flags().StringVarP(&ipSans, "ip-sans", "", "", "The requested IP Subject Alternative Names, in a comma-delimited list")
 	createCmd.Flags().StringVarP(&uriSans, "uri-sans", "", "", "The requested URI Subject Alternative Names, in a comma-delimited list. (ALTHA: Not tested)")
-	createCmd.Flags().BoolVarP(&force, "force", "-f", false, "Overwrite if the file already exists")
+	createCmd.Flags().BoolVarP(&force, "force", "f", false, "Overwrite if the file already exists")
 
 	// require
 	createCmd.MarkFlagRequired("hostname")

@@ -59,6 +59,8 @@ RUN ./bmcert create --hostname test.bluemedora.localnet --tls-skip-verify --form
 
 RUN ./bmcert create --hostname test.bluemedora.localnet --tls-skip-verify --format p12 --password password
 
+RUN ./bmcert create -f --hostname test.bluemedora.localnet --tls-skip-verify --format p12 --password password
+
 # build the release with an image that includes zip and sha256sum
 FROM debian:stable
 

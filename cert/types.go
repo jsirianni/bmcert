@@ -4,6 +4,7 @@ package cert
 type Cert struct {
     SkipVerify bool
     Verbose    bool
+    OverWrite  bool
     Hostname     string
     OutputDir    string
     OutputFormat string

@@ -58,6 +58,7 @@ func initConfig() {
 	bmcert.SkipVerify = skipVerify
 	bmcert.URISans = uriSans
 	bmcert.Verbose = verbose
+	bmcert.OverWrite = force
 	bmcert.Init()
 }
 

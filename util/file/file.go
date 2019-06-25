@@ -8,8 +8,8 @@ import (
 
 // WriteFile will write a file to disk. An error is returned
 // if the file alredy exists
-func WriteFile(filePath string, data []byte, perm os.FileMode) error {
-    if Exists(filePath) == true {
+func WriteFile(filePath string, data []byte, perm os.FileMode, OverWrite bool) error {
+    if Exists(filePath) == true && OverWrite == false {
         return errors.New(filePath + " already exists.")
     }
     return ioutil.WriteFile(filePath, data, perm)
