@@ -185,6 +185,7 @@ func (config *Cert) parseArgs() error {
     config.certificateReq.AltNames = config.AltNames
     config.certificateReq.IPSans = config.IPsans
     config.certificateReq.URISans = config.URISans
+    config.certificateReq.TTL = config.TTL
 
 	return nil
 }

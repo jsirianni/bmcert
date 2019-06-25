@@ -12,6 +12,7 @@ type Cert struct {
     AltNames     string
     IPsans       string
     URISans      string
+    TTL          string
 
 	// certificate object is left unexported as it should
 	// not be accessable outside of this library
@@ -33,6 +34,7 @@ type certificateRequest struct {
 	AltNames   string `json:"alt_names"`
 	IPSans     string `json:"ip_sans"`
 	URISans    string `json:"uri_sans"`
+    TTL        string `json:"ttl"`
 }
 
 type apiResponse struct {
