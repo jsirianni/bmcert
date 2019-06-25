@@ -95,11 +95,11 @@ func setTTL() (string, error) {
 	unit := strings.ToLower(ttl[len(ttl)-1:])
 	switch unit {
 	case "s":
-		return strconv.Itoa(ttlNumber), nil
+		return strconv.FormatInt(ttlNumber, timecalc.BASE), nil
 	case "d":
-		return timecalc.SecondsDay(ttlNumber), nil
+		return timecalc.SecondsDayString(ttlNumber), nil
 	case "m":
-		return timecalc.SecondsMonth(ttlNumber), nil
+		return timecalc.SecondsMonthString(ttlNumber), nil
 	}
 	return "", errors.New("TTL unit must be seconds, days, or months (s, d, m), got: " + ttl)
 }
@@ -107,14 +107,14 @@ func setTTL() (string, error) {
 // stripTTLSuffix returns the time to live value without the
 // unit type suffix
 // exampple: 600d is returned as 600
-func stripTTLSuffix() (int, error) {
+func stripTTLSuffix() (int64, error) {
 	t := ttl[:len(ttl)-1]
 
 	// if t (ttl without the unit suffix) cannot be converted
 	// to an int, return an error
-	i, err := strconv.Atoi(t)
+	i, err := strconv.ParseInt(t, timecalc.BASE, 64)
 	if err != nil {
-		return 0, errors.New("Failed to convert --ttl value to an int.\n" + err.Error())
+		return 0, errors.New("Failed to convert --ttl value to an int64.\n" + err.Error())
 	}
 
 	// make sure the user did not pass '0d' or something similar
