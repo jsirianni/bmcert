@@ -10,7 +10,7 @@ import (
     "crypto/x509"
     "math/rand"
 
-    "bmcert/util/auth"
+    "bmcert/util/vaultauth"
     "bmcert/util/httpclient"
     "bmcert/util/file"
     "bmcert/util/env"
@@ -52,7 +52,7 @@ func (config *Cert) requestCertificate() (apiResponse, error) {
 		return r, nil
 	}
 
-    token, err := auth.ReadVaultToken()
+    token, err := vaultauth.ReadVaultToken()
 	if err != nil {
 		return r, err
 	}

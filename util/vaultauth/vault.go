@@ -1,4 +1,4 @@
-package auth
+package vaultauth
 
 import (
 	"io/ioutil"
