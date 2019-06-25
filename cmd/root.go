@@ -8,16 +8,21 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var skipverify bool
-var verbose    bool
-var hostname     string
-var outputdir    string
-var outputformat string
-var password     string
-var altnames     string
-var ipsans       string
-var urisans      string
+// boolean command line flags
+var skipVerify, verbose, force bool
 
+// string command line flags
+var (
+	hostname     string
+	outputDir    string
+	outputFormat string
+	password     string
+	altNames     string
+	ipSans       string
+	uriSans      string
+)
+
+// bmcert is the certificate configuration
 var bmcert cert.Cert
 
 var rootCmd = &cobra.Command{
@@ -37,21 +42,21 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 
-	rootCmd.PersistentFlags().BoolVarP(&skipverify, "tls-skip-verify", "", false, "Disable certificate verification when communicating with the Vault API (Defaults to false)")
+	rootCmd.PersistentFlags().BoolVarP(&skipVerify, "tls-skip-verify", "", false, "Disable certificate verification when communicating with the Vault API (Defaults to false)")
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "", false, "Enable verbose output --verbose")
 }
 
 // assign all command line arguments to the bmcert struct,
 // making them accessable by bmcert internal functions
 func initConfig() {
-	bmcert.AltNames = altnames
+	bmcert.AltNames = altNames
 	bmcert.Hostname = hostname
-	bmcert.IPsans = ipsans
-	bmcert.OutputDir = outputdir
-	bmcert.OutputFormat = outputformat
+	bmcert.IPsans = ipSans
+	bmcert.OutputDir = outputDir
+	bmcert.OutputFormat = outputFormat
 	bmcert.Password = password
-	bmcert.SkipVerify = skipverify
-	bmcert.URISans = urisans
+	bmcert.SkipVerify = skipVerify
+	bmcert.URISans = uriSans
 	bmcert.Verbose = verbose
 	bmcert.Init()
 }
