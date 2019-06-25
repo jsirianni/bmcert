@@ -25,23 +25,25 @@ func Request(method string, uri string, payload []byte, token string) ([]byte, e
         return nil, err
     }
 
+
+    // return the body even if not a 200 / 201, so the
+    // API error can be parsed.
     body, status, err := performRequest(req)
     if err != nil {
-        return nil, APIErrorHelper(req, status, body)
+        return body, APIErrorHelper(req, status)
     }
-
     if StatusValid(status) == false {
-        return body, APIErrorHelper(req, status, body)
+        return body, APIErrorHelper(req, status)
     }
 
     return body, err
 }
 
 // APIErrorHelper formats an error message
-func APIErrorHelper(req *http.Request, status int, respBody []byte) error {
+func APIErrorHelper(req *http.Request, status int) error {
     uri := req.URL.String()
     method := req.Method
-    return errors.New("HTTP " + method + " to URL '" + uri + "' returned HTTP status " + strconv.Itoa(status) + "\n" + string(respBody))
+    return errors.New("HTTP " + method + " to URL '" + uri + "' returned HTTP status " + strconv.Itoa(status))
 }
 
 // StatusValid takes a status code, returns true if status

@@ -12,7 +12,7 @@ func TestAPIErrorHelper(t *testing.T) {
         t.Errorf("Failed to create new HTTP Request, this error should not happen.\n" + err.Error())
     }
 
-    err = APIErrorHelper(req, 500, []byte("some bad error"))
+    err = APIErrorHelper(req, 500)
     if err == nil {
         t.Errorf("Expected an error when calling APIErrorHelper(), got 'nil'")
         return

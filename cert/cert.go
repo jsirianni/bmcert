@@ -64,7 +64,7 @@ func (config *Cert) requestCertificate() (apiResponse, error) {
 
     body, err := httpclient.Request("POST", url, payload, token)
     if err != nil {
-        return r, err
+        return r, checkAPIError(body, err)
     }
 
 	err = json.Unmarshal(body, &r)
@@ -213,4 +213,27 @@ func (config *Cert) setHostname() error {
 	} else {
 		return errors.New("Hostname appears to be neither a short Hostname nor a FQDN")
 	}
+}
+
+// checkAPIError returns a nice error if it is known, otherwise
+// returns the origonal error with the response body
+func checkAPIError(body []byte, err error) error {
+    type apiErrorResponse struct {
+        Errors []string `json:"errors"`
+    }
+
+    var apiError apiErrorResponse
+
+    // if unmarshaling the api response fails, just return
+    // the origonal error
+    if json.Unmarshal(body, &apiError) != nil {
+        return errors.New(err.Error() + "\n" + string(body))
+    }
+
+    for _, e := range apiError.Errors {
+        if strings.Contains(e, "unknown role") == true {
+            return errors.New(err.Error() + "\nMake sure VAULT_CERT_URL is correct.")
+        }
+    }
+    return errors.New(err.Error() + "\n" + string(body))
 }
