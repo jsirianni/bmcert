@@ -39,7 +39,7 @@ RUN \
 
 # create and validate
 RUN ./bmcert create --hostname test3.bluemedora.localnet --tls-skip-verify && \
-    openssl x509 -in test2.bluemedora.localnet.pem -text -noout
+    openssl x509 -in test3.bluemedora.localnet.pem -text -noout
 
 RUN ./bmcert create --hostname test2.bluemedora.localnet --tls-skip-verify --format cert && \
     openssl x509 -in test2.bluemedora.localnet.crt -text -noout && \
