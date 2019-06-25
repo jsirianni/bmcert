@@ -38,7 +38,7 @@ RUN \
     vault login -method=github token=$VAULT_GITHUB_TOKEN >> /dev/null
 
 # create and validate
-RUN ./bmcert create --hostname test2.bluemedora.localnet --tls-skip-verify && \
+RUN ./bmcert create --hostname test3.bluemedora.localnet --tls-skip-verify && \
     openssl x509 -in test2.bluemedora.localnet.pem -text -noout
 
 RUN ./bmcert create --hostname test2.bluemedora.localnet --tls-skip-verify --format cert && \
@@ -49,6 +49,20 @@ RUN ./bmcert create --hostname test2.bluemedora.localnet --tls-skip-verify --for
 
 # test force replace flag
 RUN ./bmcert create -f --hostname test2.bluemedora.localnet --tls-skip-verify --format p12 --password password
+
+# test cert expiration, current year and future year should not be equal
+RUN \
+    ./bmcert create --hostname test2.bluemedora.localnet --tls-skip-verify -f --ttl 12m && \
+    CURRENT_YEAR=$(TZ=GMT date +"%c %Z" | awk '{print $5}') && \
+    FUTURE_YEAR=$(openssl x509 -in test2.bluemedora.localnet.pem -text -noout -dates | grep notAfter | awk '{print $4}') && \
+    if [ "$CURRENT_YEAR" = "$FUTURE_YEAR" ]; then exit 1; fi
+
+# test cert expiration, current year and future year should be equal
+RUN \
+    ./bmcert create --hostname test2.bluemedora.localnet --tls-skip-verify -f --ttl 1s && \
+    CURRENT_YEAR=$(TZ=GMT date +"%c %Z" | awk '{print $5}') && \
+    FUTURE_YEAR=$(openssl x509 -in test2.bluemedora.localnet.pem -text -noout -dates | grep notAfter | awk '{print $4}') && \
+    if [ "$CURRENT_YEAR" != "$FUTURE_YEAR" ]; then exit 1; fi
 
 # build the relese
 #
