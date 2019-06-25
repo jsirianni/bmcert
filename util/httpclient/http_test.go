@@ -1,12 +1,18 @@
 package httpclient
 
 import (
+    "net/http"
     "testing"
 )
 
 func TestAPIErrorHelper(t *testing.T) {
 
-    err := APIErrorHelper("https://err.com", 500, []byte("some bad error"))
+    req, err := http.NewRequest("POST", "https://err.com", nil)
+    if err != nil {
+        t.Errorf("Failed to create new HTTP Request, this error should not happen.\n" + err.Error())
+    }
+
+    err = APIErrorHelper(req, 500, []byte("some bad error"))
     if err == nil {
         t.Errorf("Expected an error when calling APIErrorHelper(), got 'nil'")
         return
@@ -57,7 +63,7 @@ func TestCreateRequest(t *testing.T) {
     }
 
     if req.Header.Get("Content-Type") != "application/json" {
-        t.Errorf("Expected CreateRequest() to return a http request with header Content-Type='application/json'")    
+        t.Errorf("Expected CreateRequest() to return a http request with header Content-Type='application/json'")
     }
 
 }

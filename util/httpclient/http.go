@@ -26,16 +26,22 @@ func Request(method string, uri string, payload []byte, token string) ([]byte, e
     }
 
     body, status, err := performRequest(req)
+    if err != nil {
+        return nil, APIErrorHelper(req, status, body)
+    }
 
     if StatusValid(status) == false {
-        return body, APIErrorHelper(uri, status, body)
+        return body, APIErrorHelper(req, status, body)
     }
+
     return body, err
 }
 
 // APIErrorHelper formats an error message
-func APIErrorHelper(uri string, status int, respBody []byte) error {
-    return errors.New(uri + " returned " + strconv.Itoa(status) + "\n" + string(respBody))
+func APIErrorHelper(req *http.Request, status int, respBody []byte) error {
+    uri := req.URL.String()
+    method := req.Method
+    return errors.New("HTTP " + method + " to URL '" + uri + "' returned HTTP status " + strconv.Itoa(status) + "\n" + string(respBody))
 }
 
 // StatusValid takes a status code, returns true if status
