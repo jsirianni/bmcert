@@ -238,3 +238,18 @@ func checkAPIError(body []byte, err error) error {
     }
     return errors.New(err.Error() + "\n" + string(body))
 }
+
+// ValidOutputFormats returns all valid format options
+func ValidOutputFormats() []string {
+    return []string{"pem", "cert", "p12", "pkcs12"}
+}
+
+// IsValidOutputformat returns nil if a format is valid
+func IsValidOutputFormat(format string) error {
+    for _, f := range ValidOutputFormats() {
+        if f == format {
+            return nil
+        }
+    }
+    return errors.New("error: " + format + " is not valid")
+}

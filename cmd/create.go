@@ -1,5 +1,7 @@
 package cmd
 import (
+	"bmcert/cert"
+
 	"github.com/spf13/cobra"
 )
 
@@ -30,6 +32,10 @@ func init() {
 }
 
 func createCert() {
+	if err := parseArgs(); err != nil {
+		printErrorExit(err, 1)
+	}
+
 	cert, err := bmcert.CreateCertificate()
 	if err != nil {
 		printErrorExit(err, 1)
@@ -39,4 +45,15 @@ func createCert() {
 	if err != nil {
 		printErrorExit(err, 1)
 	}
+}
+
+func parseArgs() error {
+	if len(outputFormat) > 0 {
+		err := cert.IsValidOutputFormat(outputFormat)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+
 }
