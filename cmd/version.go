@@ -8,7 +8,7 @@ import (
 
 // VERSION const is used for the version command and
 // by the Makefile for determining file names
-const VERSION = "0.2.2"
+const VERSION = "0.2.3"
 
 // versionCmd represents the version command
 var versionCmd = &cobra.Command{
