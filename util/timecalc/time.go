@@ -4,14 +4,19 @@ import (
     "strconv"
 )
 
+// BASE const is the unit base for rounding functions
 const BASE int            = 10
-const SECONDS_DAY int64   = 86400
-const SECONDS_MONTH int64 = 2.628e+6
+
+// SECONDSDAY is the amount of seconds in a day
+const SECONDSDAY int64   = 86400
+
+// SECONDSMONTH is the amount of seconds in a month
+const SECONDSMONTH int64 = 2.628e+6
 
 // SecondsDay returns number of seconds in a day
 // as an int64
 func SecondsDay(duration int64) int64 {
-	return duration * SECONDS_DAY
+	return duration * SECONDSDAY
 }
 
 // SecondsDayString returns number of seconds in a day
@@ -20,10 +25,10 @@ func SecondsDayString(duration int64) string {
 	return strconv.FormatInt(SecondsDay(duration), BASE)
 }
 
-// SecondsYear returns number of seconds in a month
+// SecondsMonth returns number of seconds in a month
 // as an int64
 func SecondsMonth(duration int64) int64 {
-	return duration * SECONDS_MONTH
+	return duration * SECONDSMONTH
 }
 
 // SecondsMonthString returns number of seconds in a month
