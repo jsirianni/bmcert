@@ -1,6 +1,6 @@
 package main
 
-import "bmcert/cmd"
+import "github.com/BlueMedoraPublic/bmcert/cmd"
 
 func main() {
 	cmd.Execute()
