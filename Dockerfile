@@ -1,8 +1,8 @@
 
 # staging environment compiles for Linux and MacOS
-FROM golang:1.12 AS stage
+FROM golang:1.13 AS stage
 
-WORKDIR /build/src/bmcert
+WORKDIR /bmcert
 ARG token
 ARG addr
 ARG url
@@ -11,9 +11,8 @@ ENV VAULT_GITHUB_TOKEN=$token
 ENV VAULT_ADDR=$addr
 ENV VAULT_CERT_URL=$url
 ENV VAULT_SKIP_VERIFY=true
-ENV GOPATH=/build
 
-ADD . /build/src/bmcert
+ADD . /bmcert
 
 RUN \
     go get github.com/spf13/cobra && \

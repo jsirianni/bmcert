@@ -1,6 +1,6 @@
 package cmd
 import (
-	"bmcert/cert"
+	"github.com/BlueMedoraPublic/bmcert/cert"
 
 	"github.com/spf13/cobra"
 )

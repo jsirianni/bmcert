@@ -27,9 +27,9 @@ build: clean
 	    -t bmcert:${VERSION} .
 
 	@docker create -ti --name bmcertartifacts bmcert:${VERSION} bash && \
-	    docker cp bmcertartifacts:/build/src/bmcert/bmcert-v${VERSION}-linux-amd64.zip artifacts/bmcert-v${VERSION}-linux-amd64.zip && \
-	    docker cp bmcertartifacts:/build/src/bmcert/bmcert-v${VERSION}-darwin-amd64.zip artifacts/bmcert-v${VERSION}-darwin-amd64.zip && \
-	    docker cp bmcertartifacts:/build/src/bmcert/bmcert-v${VERSION}.SHA256SUMS artifacts/bmcert-v${VERSION}.SHA256SUMS
+	    docker cp bmcertartifacts:/bmcert/bmcert-v${VERSION}-linux-amd64.zip artifacts/bmcert-v${VERSION}-linux-amd64.zip && \
+	    docker cp bmcertartifacts:/bmcert/bmcert-v${VERSION}-darwin-amd64.zip artifacts/bmcert-v${VERSION}-darwin-amd64.zip && \
+	    docker cp bmcertartifacts:/bmcert/bmcert-v${VERSION}.SHA256SUMS artifacts/bmcert-v${VERSION}.SHA256SUMS
 
 	# cleanup
 	@docker rm -fv bmcertartifacts &> /dev/null

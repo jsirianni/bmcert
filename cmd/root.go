@@ -6,8 +6,8 @@ import (
 	"strings"
 	"errors"
 
-	"bmcert/cert"
-	"bmcert/util/timecalc"
+	"github.com/BlueMedoraPublic/bmcert/cert"
+	"github.com/BlueMedoraPublic/bmcert/util/timecalc"
 
 	"github.com/spf13/cobra"
 )

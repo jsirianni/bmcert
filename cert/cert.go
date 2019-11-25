@@ -10,10 +10,10 @@ import (
     "crypto/x509"
     "math/rand"
 
-    "bmcert/util/vaultauth"
-    "bmcert/util/httpclient"
-    "bmcert/util/file"
-    "bmcert/util/env"
+    "github.com/BlueMedoraPublic/bmcert/util/vaultauth"
+    "github.com/BlueMedoraPublic/bmcert/util/httpclient"
+    "github.com/BlueMedoraPublic/bmcert/util/file"
+    "github.com/BlueMedoraPublic/bmcert/util/env"
 
     "github.com/hashicorp/vault/sdk/helper/certutil"
     pkcs12 "github.com/BlueMedoraPublic/go-pkcs12"
