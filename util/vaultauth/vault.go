@@ -4,7 +4,7 @@ import (
 	"io/ioutil"
 	"strings"
 
-	"bmcert/util/env"
+	"github.com/BlueMedoraPublic/bmcert/util/env"
 
 	"github.com/mitchellh/go-homedir"
 )
