@@ -8,7 +8,11 @@ endif
 
 
 ifndef VAULT_CERT_URL
-    $(error VAULT_GITHUB_TOKEN is not set)
+    $(error VAULT_CERT_URL is not set)
+endif
+
+ifndef VAULT_PKI_URL
+    $(error VAULT_PKI_URL is not set)
 endif
 
 VERSION := $(shell cat cmd/version.go | grep "const VERSION" | cut -c 17- | tr -d '"')
@@ -24,6 +28,7 @@ build: clean
 	    --build-arg token=${VAULT_GITHUB_TOKEN} \
 	    --build-arg addr=${VAULT_ADDR} \
 	    --build-arg url=${VAULT_CERT_URL} \
+		--build-arg pki_url=${VAULT_PKI_URL} \
 	    -t bmcert:${VERSION} .
 
 	@docker create -ti --name bmcertartifacts bmcert:${VERSION} bash && \

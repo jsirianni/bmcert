@@ -6,10 +6,12 @@ WORKDIR /bmcert
 ARG token
 ARG addr
 ARG url
+ARG pki_url
 ARG version
 ENV VAULT_GITHUB_TOKEN=$token
 ENV VAULT_ADDR=$addr
 ENV VAULT_CERT_URL=$url
+ENV VAULT_PKI_URL=$pki_url
 ENV VAULT_SKIP_VERIFY=true
 
 ADD . /bmcert
@@ -62,6 +64,11 @@ RUN \
     CURRENT_YEAR=$(TZ=GMT date +"%c %Z" | awk '{print $5}') && \
     FUTURE_YEAR=$(openssl x509 -in test2.bluemedora.localnet.pem -text -noout -dates | grep notAfter | awk '{print $4}') && \
     if [ "$CURRENT_YEAR" != "$FUTURE_YEAR" ]; then exit 1; fi
+
+# test ca command
+RUN \
+    ./bmcert ca --force --tls-skip-verify && \
+    openssl x509 -in ca.crt -text -noout
 
 # build the relese
 #
