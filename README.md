@@ -17,8 +17,11 @@ bmcert --help
 # vault server url
 VAULT_ADDR=https://vault.mynet.com:8200
 
-# full URL to vault server, including the pki path
-VAULT_CERT_URL=https://vault.mynet.com:8200/v1/<pki endpoint>
+# PKI endpoint
+VAULT_PKI_URL=https://vault.mynet.com:8200//v1/<pki endpoint>
+
+# PLI certificate issuer endpoint
+VAULT_CERT_URL=https://vault.mynet.com:8200/v1/<pki endpoint>/issue/<domain>
 ```
 
 ## Usage
