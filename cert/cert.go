@@ -202,7 +202,7 @@ func (config *Cert) setHostname() error {
 	}
 
 	// if Hostname appears to be fqdn
-	if len(stringSlice) == 3 {
+	if len(stringSlice) >= 3 {
 		config.certificateReq.CommonName = config.Hostname
 		return nil
 
