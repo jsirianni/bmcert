@@ -39,6 +39,9 @@ RUN \
     vault login -method=github token=$VAULT_GITHUB_TOKEN >> /dev/null
 
 # create and validate
+RUN ./bmcert create --hostname test.subdomain.bluemedora.localnet --tls-skip-verify && \
+    openssl x509 -in test.subdomain.bluemedora.localnet.pem -text -noout
+
 RUN ./bmcert create --hostname test3.bluemedora.localnet --tls-skip-verify && \
     openssl x509 -in test3.bluemedora.localnet.pem -text -noout
 
