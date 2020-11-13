@@ -41,6 +41,14 @@ build: clean local-vault
 local-vault:
 	scripts/local_vault.sh
 
+local-test: local-vault
+	go build
+	VAULT_TOKEN=${LOCAL_VAULT_TOKEN} \
+	VAULT_ADDR=${LOCAL_VAULT_ADDR} \
+	VAULT_PKI_URL=${LOCAL_VAULT_PKI_URL} \
+	VAULT_CERT_URL=${LOCAL_VAULT_CERT_URL} \
+		./bmcert create --hostname test.test.local --force
+
 test:
 	go test ./...
 
