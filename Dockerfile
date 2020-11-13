@@ -27,11 +27,7 @@ RUN env CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o bmcert
 RUN env CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -o bmcert-darwin
 
 RUN apt-get update >> /dev/null && \
-    apt-get install -y openssl wget unzip zip >> /dev/null
-
-RUN \
-    wget -q https://releases.hashicorp.com/vault/1.1.2/vault_1.1.2_linux_amd64.zip && \
-    unzip vault_1.1.2_linux_amd64.zip && mv vault /usr/bin && chmod +x /usr/bin/vault
+    apt-get install -y openssl zip >> /dev/null
 
 # create and validate
 RUN ./bmcert create --hostname test.subdomain.test.local --tls-skip-verify && \
@@ -57,7 +53,7 @@ RUN \
     if [ "$CURRENT_YEAR" = "$FUTURE_YEAR" ]; then exit 1; fi
 
 # test cert expiration, current year and future year should be equal
-# this requires ttl greater than 
+# this requires ttl greater than
 RUN \
     ./bmcert create --hostname test2.test.local --tls-skip-verify -f --ttl 1s && \
     CURRENT_YEAR=$(TZ=GMT date +"%c %Z" | awk '{print $5}') && \
