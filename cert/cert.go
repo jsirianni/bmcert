@@ -3,7 +3,6 @@ package cert
 import (
     "os"
     "fmt"
-    "errors"
     "strings"
     "strconv"
     "encoding/json"
@@ -17,6 +16,8 @@ import (
 
     "github.com/hashicorp/vault/sdk/helper/certutil"
     pkcs12 "github.com/BlueMedoraPublic/go-pkcs12"
+
+    "github.com/pkg/errors"
 )
 
 // Init sets runtime variables such as tls skip verify
@@ -37,9 +38,9 @@ func (config *Cert) CreateCertificate() (SignedCertificate, error) {
         return apiResponse.Data, err
     }
 
-	if apiResponse.validateCertificate(config) == false {
-		return apiResponse.Data, errors.New("Error: failed to validate certifcate")
-	}
+    if err := apiResponse.Data.validate(); err != nil {
+        return apiResponse.Data, err
+    }
 
     return apiResponse.Data, nil
 }
@@ -136,31 +137,6 @@ func (config *Cert) WriteCert(c SignedCertificate) error {
 		}
 	}
 	return nil
-}
-
-// perform basic checks on the certificate before assuming it is valid
-func (certresp apiResponse) validateCertificate(config *Cert) bool {
-	valid := true
-
-	if config.Verbose == true {
-		fmt.Println("Validating certificate response. . .")
-		fmt.Printf("%#v", certresp)
-	}
-
-	// make sure len of cert is not 0
-	if len(certresp.Data.Certificate) < 500 {
-		valid = false
-		fmt.Println("Certificate appears to be shorter than 500 characters, something is wrong.")
-	}
-	if len(certresp.Data.IssuingCa) < 500 {
-		valid = false
-		fmt.Println("Issuing CA appears to be shorter than 500 characters, something is wrong.")
-	}
-	if len(certresp.Data.PrivateKey) < 500 {
-		valid = false
-		fmt.Println("Private key appears to be shorter than 500 characters, something is wrong.")
-	}
-	return valid
 }
 
 // Return the output directory, with a trailing "/"
