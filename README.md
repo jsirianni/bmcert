@@ -86,7 +86,9 @@ When calling `bmcert create`:
 ```
 
 
-## Building from Source
+## Developing
+
+### Building from Source
 A Makefile and Dockerfile are provided for building `bmcert`. Docker will
 compile, run unit tests, and zip binaries for Linux and MacOS
 as well as generating a sha256 sum file.
@@ -113,3 +115,8 @@ env CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build
 # linux
 env CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build
 ```
+
+### Releases
+
+Github actions will build a draft release when new tags are pushed,
+using [goreleaser](https://goreleaser.com/)
