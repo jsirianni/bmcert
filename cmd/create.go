@@ -23,7 +23,7 @@ func init() {
 	createCmd.Flags().StringVarP(&password, "password", "P", "", "The password to protect pkcs12 (p12) certificates (optional)")
 	createCmd.Flags().StringVarP(&altNames, "alt-names", "", "", "The requested Subject Alternative Names, in a comma-delimited list")
 	createCmd.Flags().StringVarP(&ipSans, "ip-sans", "", "", "The requested IP Subject Alternative Names, in a comma-delimited list")
-	createCmd.Flags().StringVarP(&uriSans, "uri-sans", "", "", "The requested URI Subject Alternative Names, in a comma-delimited list. (ALTHA: Not tested)")
+	createCmd.Flags().StringVarP(&uriSans, "uri-sans", "", "", "The requested URI Subject Alternative Names, in a comma-delimited list")
 	createCmd.Flags().StringVarP(&ttl, "ttl", "", "", "Certificate time to live in seconds, days, or months (600s, 2d, 1m). Uses Vault default ttl if not passed")
 	createCmd.Flags().BoolVarP(&force, "force", "f", false, "Overwrite if the file already exists")
 
