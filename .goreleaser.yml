@@ -16,7 +16,7 @@ builds:
   ignore:
     - goos: darwin
       goarch: '386'
-  binary: '{{ .ProjectName }}_v{{ .Version }}'
+  binary: 'bmcert'
 archives:
 - format: zip
   name_template: '{{ .ProjectName }}_v{{ .Version }}_{{ .Os }}_{{ .Arch }}'
