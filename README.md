@@ -1,4 +1,7 @@
 # bmcert
+
+https://travis-ci.com/BlueMedoraPublic/bmcert.svg?branch=master
+
 CLI for generating signed certificates using Vault.
 
 
