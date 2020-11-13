@@ -2,6 +2,7 @@ package cert
 
 import (
     "fmt"
+    "errors"
 
     "github.com/BlueMedoraPublic/bmcert/util/env"
     "github.com/BlueMedoraPublic/bmcert/util/vaultauth"
@@ -42,10 +43,10 @@ func (config *Cert) WriteCA() error {
 
     // get the output
     filePath := config.getDir() + "ca.crt"
+    if file.Exists(filePath) && config.OverWrite == false {
+        return errors.New(filePath + " already exists.")
+    }
 
-    // WriteFile takes a file path, []byte payload, os permissions
-    // and overwrite boolean. It returns an error if the write
-    // failse
     if err := file.WriteFile(filePath, ca, 0600, config.OverWrite); err != nil {
         return err
     }
