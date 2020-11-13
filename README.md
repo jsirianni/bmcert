@@ -79,12 +79,14 @@ Global flags are used for any command:
 When calling `bmcert create`:
 ```
     --alt-names string    The requested Subject Alternative Names, in a comma-delimited list
--F, --format string       The keyfile formant to output. [pem, p12] (default "pem")
+-f, --force               Overwrite if the file already exists
+-F, --format string       The keyfile formant to output. [pem, cert, p12] (default "pem")
 -h, --help                help for create
 -H, --hostname string     The fully qualified hostname.
     --ip-sans string      The requested IP Subject Alternative Names, in a comma-delimited list
 -O, --output-dir string   The directory to output to. Defaults to working directory.
 -P, --password string     The password to protect pkcs12 (p12) certificates (optional)
+    --ttl string          Certificate time to live in seconds, days, or months (600s, 2d, 1m). Uses Vault default ttl if not passed
     --uri-sans string     The requested URI Subject Alternative Names, in a comma-delimited list. (ALTHA: Not tested)
 ```
 
