@@ -35,8 +35,8 @@ build: clean local-vault
 	    docker cp bmcertartifacts:/bmcert/bmcert-v${VERSION}-darwin-amd64.zip artifacts/bmcert-v${VERSION}-darwin-amd64.zip && \
 	    docker cp bmcertartifacts:/bmcert/bmcert-v${VERSION}.SHA256SUMS artifacts/bmcert-v${VERSION}.SHA256SUMS
 
-	# cleanup
 	@docker rm -fv bmcertartifacts &> /dev/null
+	@docker rm dev-vault --force >> /dev/null 2>&1 || true
 
 local-vault:
 	scripts/local_vault.sh
@@ -49,5 +49,5 @@ lint:
 
 clean:
 	$(shell rm -rf artifacts/*)
-	$(shell rm -rf test/terraform.tfstate*)
 	$(shell docker ps -a | grep 'bmcertartifacts' | awk '{print $1}' | xargs -n1 docker rm)
+	$(shell docker rm dev-vault --force >> /dev/null 2>&1 || true)
