@@ -1,6 +1,4 @@
-
-# staging environment compiles for Linux and MacOS
-FROM golang:1.13 AS stage
+FROM golang:1.15 AS stage
 
 WORKDIR /bmcert
 ARG token
@@ -8,7 +6,7 @@ ARG addr
 ARG url
 ARG pki_url
 ARG version
-ENV VAULT_GITHUB_TOKEN=$token
+ENV VAULT_TOKEN=$token
 ENV VAULT_ADDR=$addr
 ENV VAULT_CERT_URL=$url
 ENV VAULT_PKI_URL=$pki_url
@@ -35,37 +33,35 @@ RUN \
     wget -q https://releases.hashicorp.com/vault/1.1.2/vault_1.1.2_linux_amd64.zip && \
     unzip vault_1.1.2_linux_amd64.zip && mv vault /usr/bin && chmod +x /usr/bin/vault
 
-RUN \
-    vault login -method=github token=$VAULT_GITHUB_TOKEN >> /dev/null
-
 # create and validate
-RUN ./bmcert create --hostname test.subdomain.bluemedora.localnet --tls-skip-verify && \
-    openssl x509 -in test.subdomain.bluemedora.localnet.pem -text -noout
+RUN ./bmcert create --hostname test.subdomain.test.local --tls-skip-verify && \
+    openssl x509 -in test.subdomain.test.local.pem -text -noout
 
-RUN ./bmcert create --hostname test3.bluemedora.localnet --tls-skip-verify && \
-    openssl x509 -in test3.bluemedora.localnet.pem -text -noout
+RUN ./bmcert create --hostname test3.test.local --tls-skip-verify && \
+    openssl x509 -in test3.test.local.pem -text -noout
 
-RUN ./bmcert create --hostname test2.bluemedora.localnet --tls-skip-verify --format cert && \
-    openssl x509 -in test2.bluemedora.localnet.crt -text -noout && \
-    openssl rsa -in test2.bluemedora.localnet.key -check
+RUN ./bmcert create --hostname test2.test.local --tls-skip-verify --format cert && \
+    openssl x509 -in test2.test.local.crt -text -noout && \
+    openssl rsa -in test2.test.local.key -check
 
-RUN ./bmcert create --hostname test2.bluemedora.localnet --tls-skip-verify --format p12 --password password
+RUN ./bmcert create --hostname test2.test.local --tls-skip-verify --format p12 --password password
 
 # test force replace flag
-RUN ./bmcert create -f --hostname test2.bluemedora.localnet --tls-skip-verify --format p12 --password password
+RUN ./bmcert create -f --hostname test2.test.local --tls-skip-verify --format p12 --password password
 
 # test cert expiration, current year and future year should not be equal
 RUN \
-    ./bmcert create --hostname test2.bluemedora.localnet --tls-skip-verify -f --ttl 12m && \
+    ./bmcert create --hostname test2.test.local --tls-skip-verify -f --ttl 12m && \
     CURRENT_YEAR=$(TZ=GMT date +"%c %Z" | awk '{print $5}') && \
-    FUTURE_YEAR=$(openssl x509 -in test2.bluemedora.localnet.pem -text -noout -dates | grep notAfter | awk '{print $4}') && \
+    FUTURE_YEAR=$(openssl x509 -in test2.test.local.pem -text -noout -dates | grep notAfter | awk '{print $4}') && \
     if [ "$CURRENT_YEAR" = "$FUTURE_YEAR" ]; then exit 1; fi
 
 # test cert expiration, current year and future year should be equal
+# this requires ttl greater than 
 RUN \
-    ./bmcert create --hostname test2.bluemedora.localnet --tls-skip-verify -f --ttl 1s && \
+    ./bmcert create --hostname test2.test.local --tls-skip-verify -f --ttl 1s && \
     CURRENT_YEAR=$(TZ=GMT date +"%c %Z" | awk '{print $5}') && \
-    FUTURE_YEAR=$(openssl x509 -in test2.bluemedora.localnet.pem -text -noout -dates | grep notAfter | awk '{print $4}') && \
+    FUTURE_YEAR=$(openssl x509 -in test2.test.local.pem -text -noout -dates | grep notAfter | awk '{print $4}') && \
     if [ "$CURRENT_YEAR" != "$FUTURE_YEAR" ]; then exit 1; fi
 
 # test ca command
