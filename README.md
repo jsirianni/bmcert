@@ -95,12 +95,12 @@ Build and place artifacts in the `artifacts/` directory:
 ```
 make
 ```
-
-You can also cleanup, lint, or test with `make`
 ```
-make clean   // removes compiled zip files
-make lint    // requires `golint` be installed
-make test    // runs unit tests, requires a real Vault server
+make build       // runs integration tests against a local vault server
+make local-vault // deploys the local vault server
+make clean       // removes compiled zip files, kills local testing vault instance
+make lint        // requires `golint` be installed
+make test        // runs go tests
 ```
 
 To build outside of docker, ensure your `GOPATH` is set:
