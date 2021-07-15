@@ -1,10 +1,11 @@
 package cmd
+
 import (
+	"errors"
 	"fmt"
 	"os"
 	"strconv"
 	"strings"
-	"errors"
 
 	"github.com/BlueMedoraPublic/bmcert/cert"
 	"github.com/BlueMedoraPublic/bmcert/util/timecalc"
@@ -33,7 +34,7 @@ var bmcert cert.Cert
 var rootCmd = &cobra.Command{
 	Use:   "bmcert",
 	Short: "A CLI for generating certificates with Vault",
-	Long: `A CLI for generating certificates with Hashicorp Vault.`,
+	Long:  `A CLI for generating certificates with Hashicorp Vault.`,
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -47,7 +48,7 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 
-	rootCmd.PersistentFlags().BoolVarP(&skipVerify, "tls-skip-verify", "", false, "Disable certificate verification when communicating with the Vault API (Defaults to false)")
+	rootCmd.PersistentFlags().BoolVarP(&skipVerify, "tls-skip-verify", "", false, "Disable certificate verification when communicating with the Vault API (Defaults to false). Alternatively set VAULT_SKIP_VERIFY=1 in your environment")
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "", false, "Enable verbose output --verbose")
 }
 
@@ -55,6 +56,13 @@ func init() {
 // making them accessable by bmcert internal functions
 func initConfig() {
 	var err error
+
+	switch os.Getenv("VAULT_SKIP_VERIFY") {
+	case "1":
+		skipVerify = true
+	case "0":
+		skipVerify = false
+	}
 
 	bmcert.AltNames = altNames
 	bmcert.Hostname = hostname
